@@ -1,8 +1,8 @@
-# ECDH-ESSS
+# ECDH-1PU
 
-Internet Draft describing the `ECDH-ESSS` JWE encryption algorithm.
+Internet Draft describing the `ECDH-1PU` JWE encryption algorithm.
 
-`ECDH-ESSS` is a variant on the existing `ECDH-ES` algorithm, which performs
+`ECDH-1PU` is a variant on the existing `ECDH-ES` algorithm, which performs
 an additional ECDH key agreement between the static private key of the sender
 and the static public key of the recipient. The resulting shared secret is
 concatenated with the ephemeral-static shared secret from the normal `ECDH-ES`
@@ -21,10 +21,10 @@ and the [Noise Protocol Framework's "K" one-way pattern][2].
 ## Two-way handshake
 
 While most JOSE encryption modes only consider one-shot messages sent from a
-sender to one or more recipients, the `ECDH-ESSS` mode can also support two-way
-interactive handshakes. If Alice sends a message encrypted with `ECDH-ESSS`
+sender to one or more recipients, the `ECDH-1PU` mode can also support two-way
+interactive handshakes. If Alice sends a message encrypted with `ECDH-1PU`
 to Bob's long-term public key, and then Bob responds to Alice's ephemeral public
-key also using `ECDH-ESSS`, then the result is a handshake similar in principle
+key also using `ECDH-1PU`, then the result is a handshake similar in principle
 (but not in detail) to the [Noise KK handshake pattern][3].
 
 [1]: https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-56Ar3.pdf 
