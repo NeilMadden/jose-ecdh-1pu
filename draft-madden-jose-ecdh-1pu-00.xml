@@ -1,7 +1,6 @@
 <?xml version="1.0"?>
 <!DOCTYPE rfc PUBLIC "-//IETF//DTD RFC 2629//EN"
 "http://xml2rfc.tools.ietf.org/authoring/rfc2629.dtd" [
-<!ENTITY RFC2631 PUBLIC '' 'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.2631.xml'>
 <!ENTITY RFC7515 PUBLIC '' 'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.7515.xml'>
 <!ENTITY RFC7516 PUBLIC '' 'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.7516.xml'>
 <!ENTITY RFC7518 PUBLIC '' 'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.7518.xml'>
@@ -9,7 +8,7 @@
 <!ENTITY RFC8174 PUBLIC '' 'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8174.xml'>
 ]>
 
-<rfc category="info" docName="draft-madden-jose-ecdh-esss-00" ipr="trust200902">
+<rfc category="std" docName="draft-madden-jose-ecdh-1pu-00" ipr="trust200902">
 <?rfc toc="yes"?>
 <?rfc symrefs="yes"?>
 <?rfc sortrefs="yes"?>
@@ -20,7 +19,7 @@
 <?rfc comments="no"?>
     
     <front>
-        <title abbrev="JOSE ECDH-ESSS">Public Key Authenticated Encryption for JOSE: ECDH-ESSS</title>
+        <title abbrev="JOSE ECDH-1PU">Public Key Authenticated Encryption for JOSE: ECDH-1PU</title>
 
         <author initials="N.E." surname="Madden" fullname="Neil Madden">
             <organization>ForgeRock</organization>
@@ -39,13 +38,22 @@
         <date day="8" month="May" year="2019"/>
 
         <area>Security</area>
-        <!-- <workgroup>CFRG</workgroup> -->
+        <!-- <workgroup>OAuth</workgroup> -->
 
         <keyword>Internet-Draft</keyword>
+        <keyword>JSON Object Signing and Encryption</keyword>
+        <keyword>JOSE</keyword>
+        <keyword>JSON Web Encryption</keyword>
+        <keyword>JWE</keyword>
+        <keyword>JSON Web Algorithms</keyword>
+        <keyword>JWA</keyword>
+        <keyword>Elliptic Curve Diffie-Hellman Key Agreement</keyword>
+        <keyword>ECDH</keyword>
+        <keyword>ECDH-1PU</keyword>
 
         <abstract>
             <t>
-                This document describes the ECDH-ESSS public key authenticated encryption algorithm
+                This document describes the ECDH-1PU public key authenticated encryption algorithm
                 for JWE. The algorithm is similar to the existing ECDH-ES encryption algorithm, but
                 adds an additional ECDH key agreement between static keys of the sender and recipient.
                 This additional step allows the recipient to be assured of sender authenticity without
@@ -66,9 +74,40 @@
                 confidentiality and some level of ciphertext integrity. When sender authentication
                 is required, users must resort to nested signed-then-encrypted structures, which
                 increases the overhead and size of resulting messages. This document describes an
-                alternative encryption algorithm called ECDH-ESSS that provides public key
+                alternative encryption algorithm called ECDH-1PU that provides public key
                 authenticated encryption, allowing the benefits of authenticated encryption to be
                 enjoyed for public key JWE as it currently is for symmetric cryptography.
+            </t>
+
+            <t>
+                ECDH-1PU is based on the One-Pass Unified Model for Elliptic Curve Diffie-Hellman
+                key agreement described in <xref target="NIST.800-56A"/>.
+            </t>
+
+            <t>
+                The advantages of public key authenticated encryption with ECDH-1PU compared to
+                using nested signed-then-encrypted documents include the following:
+                <list style="symbols">
+                    <t>
+                        The resulting message size is more compact as an additional layer of headers
+                        and base64url-encoding is avoided.
+                    </t>
+                    <t>
+                        The same primitives are used for both confidentiality and authenticity,
+                        providing savings in code size for constrained environments.
+                    </t>
+                    <t>
+                        The generic composition of signatures and public key encryption involves
+                        a number of subtle details that are essential to security <xref target="PKAE"/>.
+                        Providing a dedicated algorithm for public key authenticated encryption
+                        reduces complexity for users of JOSE libraries.
+                    </t>
+                    <t>
+                        ECDH-1PU provides only authenticity and not the stronger security properties of
+                        non-repudiation or third-party verifiability. This can be an advantage in
+                        applications where privacy, anonymity, or plausible deniability are goals. 
+                    </t>
+                </list>
             </t>
 
             <section title="Requirements Terminology">
@@ -81,8 +120,8 @@
 
         </section>
 
-        <section anchor="ecdh-esss" 
-            title="Key Agreement with Elliptic Curve Diffie-Hellman Ephemeral-Static Static-Static (ECDH-ESSS)">
+        <section anchor="ecdh-1pu" 
+            title="Key Agreement with Elliptic Curve Diffie-Hellman Ephemeral-Static Static-Static (ECDH-1PU)">
             <t>
                 This section defines the specifics of key agreement with Elliptic Curve Diffie-Hellman
                 Ephemeral-Static Static-Static, in combination with the one-step KDF, as defined in
@@ -103,7 +142,7 @@
             <t>
                 In Direct Key Agreement mode, the output of the KDF MUST be a key of the same length
                 as that used by the "enc" algorithm. In this case, the empty octet sequence is used
-                as the JWE Encrypted Key value. The "alg" (algorithm) Header Parameter value "ECDH-ESSS"
+                as the JWE Encrypted Key value. The "alg" (algorithm) Header Parameter value "ECDH-1PU"
                 is used in Direct Key Agreement mode.
             </t>
             <t>
@@ -120,20 +159,20 @@
                 <ttcol align="left" width="13%">"alg" Param Value</ttcol>
                 <ttcol align="left">Key Management Algorithm</ttcol>
 
-                <c>ECDH-ESSS+A128KW</c>
-                <c>ECDH-ESSS using Concat KDF and CEK wrapped with "A128KW"</c>
+                <c>ECDH-1PU+A128KW</c>
+                <c>ECDH-1PU using Concat KDF and CEK wrapped with "A128KW"</c>
 
-                <c>ECDH-ESSS+A192KW</c>
-                <c>ECDH-ESSS using Concat KDF and CEK wrapped with "A192KW"</c>
+                <c>ECDH-1PU+A192KW</c>
+                <c>ECDH-1PU using Concat KDF and CEK wrapped with "A192KW"</c>
 
-                <c>ECDH-ESSS+A256KW</c>
-                <c>ECDH-ESSS using Concat KDF and CEK wrapped with "A256KW"</c>
+                <c>ECDH-1PU+A256KW</c>
+                <c>ECDH-1PU using Concat KDF and CEK wrapped with "A256KW"</c>
             </texttable>
 
             <section title="Header Parameters used for ECDH Key Agreement">
                 <t>
                     The "epk" (ephemeral public key), "apu" (Agreement PartyUInfo), and "apv" (Agreement PartyVInfo)
-                    header parameters are used in ECDH-ESSS exactly as defined in Section 4.6.1 of
+                    header parameters are used in ECDH-1PU exactly as defined in Section 4.6.1 of
                     <xref target="RFC7518"/>.
                 </t>
                 <t>
@@ -146,14 +185,14 @@
                 </t>
             </section>
 
-            <section title="Key Derivation for ECDH-ESSS Key Agreement">
+            <section title="Key Derivation for ECDH-1PU Key Agreement">
                 <t>
                     The key derivation process derives the agreed-upon key from the shared secret Z
                     established through the ECDH algorithm, per Section 6.2.1.2 of <xref target="NIST.800-56A"/>.
                     For the NIST prime order curves "P-256", "P-384", and "P-521", the ECC CDH primitive
                     for cofactor Diffie-Hellman defined in Section 5.7.1.2 of <xref target="NIST.800-56A"/> is
                     used (taking note that the cofactor for all these curves is 1). For curves "X25519" and
-                    "X448" the appropriate ECDH primitive from Section 5 of <xref target="RFC7749"/> is used.
+                    "X448" the appropriate ECDH primitive from Section 5 of <xref target="RFC7748"/> is used.
                 </t>
                 <t>
                     Key derivation is performed using the one-step KDF, as defined in Section 5.8.1 and
@@ -161,8 +200,8 @@
                     Section 5.8.2.1.1, where the Auxilary Function H is SHA-256. The KDF parameters
                     are set as follows:
 
-                    <list style="Z">
-                        <t>
+                    <list style="hanging">
+                        <t hangText="Z">
                             This is set to the representation of the shared secret Z as an octet sequence.
                             As per Section 6.2.1.2 of <xref target="NIST.800-56A"/> Z is the concatenation
                             of Ze and Zs, where Ze is the shared secret derived from applying the ECDH
@@ -170,16 +209,12 @@
                             public key. Zs is the shared secret derived from applying the ECDH primitive
                             to the sender's static private key and the recipient's static public key.
                         </t>
-                    </list>
-                    <list style="keydatalen">
-                        <t>
-                            This is set to the number of bits in the desired output key. For "ECDH-ESSS",
-                            this is the length of the key used by the "enc" algorithm. For "ECDH-ESSS+A128KW",
-                            "ECDH-ESSS+A192KW", and "ECDH-ESSS+A256KW", this is 128, 192, and 256, respectively.
+                        <t hangText="keydatalen">
+                            This is set to the number of bits in the desired output key. For "ECDH-1PU",
+                            this is the length of the key used by the "enc" algorithm. For "ECDH-1PU+A128KW",
+                            "ECDH-1PU+A192KW", and "ECDH-1PU+A256KW", this is 128, 192, and 256, respectively.
                         </t>
-                    </list>
-                    <list style="AlgorithmID">
-                        <t>
+                        <t hangText="AlgorithmID">
                             The AlgorithmID values is of the form Datalen || Data, where Data is a variable-length
                             string of zero or more octets, and Datalen is a fixed-length, big-endian 32-bit counter
                             that indicates the length (in octets) of Data. In the Direct Key Agreement case,
@@ -187,9 +222,7 @@
                             In the Key Agreement with Key Wrapping case, Data is set to the octets of the ASCII
                             representation of the "alg" (algorithm) Header Parameter value.
                         </t>
-                    </list>
-                    <list style="PartyUInfo">
-                        <t>
+                        <t hangText="PartyUInfo">
                           The PartyUInfo value is of the form Datalen || Data, where Data is
                           a variable-length string of zero or more octets, and Datalen is a
                           fixed-length, big-endian 32-bit counter that indicates the length
@@ -199,9 +232,7 @@
                           octets in Data.  Otherwise, Datalen is set to 0 and Data is set to
                           the empty octet sequence.
                         </t>
-                    </list>
-                    <list style="PartyVInfo">
-                        <t>
+                        <t hangText="PartyVInfo">
                           The PartyVInfo value is of the form Datalen || Data, where Data is
                           a variable-length string of zero or more octets, and Datalen is a
                           fixed-length, big-endian 32-bit counter that indicates the length
@@ -211,14 +242,10 @@
                           octets in Data.  Otherwise, Datalen is set to 0 and Data is set to
                           the empty octet sequence.
                         </t>
-                    </list>
-                    <list style="SuppPubInfo">
-                        <t>
+                        <t hangText="SuppPubInfo">
                             This is set to the keydatalen represented as a 32-bit big-endian integer.
                         </t>
-                    </list>
-                    <list style="SuppPrivInfo">
-                        <t>
+                        <t hangText="SuppPrivInfo">
                             This is set to the empty octet sequence.
                         </t>
                     </list>
@@ -229,10 +256,56 @@
                     of that doucument, e.g., by using values that identify the producer and consumer.
                 </t>
                 <t>
-                    See <xref target="example"/> for an example key agreement computation using this method.
+                        <!-- See <xref target="example"/> for an example key agreement computation using this method. -->
                 </t>
 
             </section>
+        </section>
+
+        <section anchor="interactive" title="Two-way interactive handshake">
+            <t>
+                A party that has received a JWE encrypted with ECDH-1PU MAY reply to that message by
+                creating a new JWE using ECDH-1PU, but using the ephemeral public key ("epk") from the
+                first message as if it was the originating party's static public key. In this case,
+                key agreement proceeds exactly as for <xref target="ecdh-1pu"/>, but with the originator's
+                ephemeral public key used as the recipient (Party V) static public key. The "alg" (algorithm)
+                Header Parameter in the response MUST be identical to the "alg" Header Parameter of the
+                original message.
+            </t>
+            <t>
+                The value of the "apu" (Agreement PartyUInfo) Header Parameter value from the original
+                message SHOULD be reflected as the "apv" (Agreement PartyVInfo) Header Parameter value in
+                the new message. Applications need to specify how the new "apu" Header Parameter should be
+                constructed.
+            </t>
+            <t>
+                If a "kid" claim was included in the ephemeral public key of the original message, then
+                a "kid" Header Parameter with the same value MUST be included in the reply JWE.
+            </t>
+            <t>
+                    <!-- See <xref target="handshake"/> for an example handshake using this method. -->
+            </t>
+            <t>
+                After the initial message and a reply have been exchanged, the two parties may communicate
+                using the derived key from the second message as the encryption key for any number of
+                additional messages. When ECDH-1PU is used in Direct Key Agreement mode, then subsequent
+                messages using the derived key MUST be encrypted using the "dir" (Direct) JWE algorithm. When 
+                used in Key Agreement with Key Wrapping mode, subsequent messages using the derived key MUST
+                be encrypted using the associated Key Wrapping algorithm, as shown in the following table:
+            </t>
+            <texttable>
+                <ttcol align="left">ECDH-1PU "alg" Param Value</ttcol>
+                <ttcol align="left">Subsequent "alg" Param Value</ttcol>
+
+                <c>ECDH-1PU+A128KW</c>
+                <c>A128KW</c>
+
+                <c>ECDH-1PU+A192KW</c>
+                <c>A192KW</c>
+
+                <c>ECDH-1PU+A256KW</c>
+                <c>A256KW</c>
+            </texttable>
         </section>
 
         <section anchor="IANA" title="IANA considerations">
@@ -242,15 +315,15 @@
                 <xref target="RFC7518"/>. 
             </t>
 
-            <section title="ECDH-ESSS">
+            <section title="ECDH-1PU">
                 <t>
                     <list style="bullets">
-                        <t>Algorithm Name: "ECDH-ESSS"</t>
-                        <t>Algorithm Description: ECDH-ESSS using Concat KDF</t>
+                        <t>Algorithm Name: "ECDH-1PU"</t>
+                        <t>Algorithm Description: ECDH One-Pass Unified Model using Concat KDF</t>
                         <t>Algorithm Usage Location(s): "alg"</t>
                         <t>JOSE Implementation Requirements: Optional</t>
                         <t>Change Controller: IESG</t>
-                        <t>Specification Document(s): <xref target="ecdh-esss"/></t>
+                        <t>Specification Document(s): <xref target="ecdh-1pu"/></t>
                         <t>Algorithm Analysis Document(s): <xref target="NIST.800-56A"/> (Section 7.3), 
                             <xref target="PKAE"/></t>
                     </list>
@@ -266,7 +339,29 @@
             <t>The security considerations of <xref target="NIST.800-56A"/> apply here.</t>
 
             <t>
-                
+                When performing an ECDH key agreement between a static private key and any untrusted
+                public key, care should be taken to ensure that the public key is a valid point on
+                the same curve as the private key. Failure to do so may result in compromise of the
+                static private key. For the NIST curves P-256, P-384, and P-521, appropriate validation
+                routines are given in Section 5.6.2.3.3 of <xref target="NIST.800-56A"/>. For the curves
+                used by X25519 and X448, consult the security considerations of <xref target="RFC7748"/>.
+            </t>
+
+            <t>
+                The ECDH-1PU algorithm is vulnerable to Key Compromise Impersonation (KCI) attacks. If
+                the long-term static private key of a party is compromised, then the attacker can not
+                only impersonate that party to other parties, but also impersonate any other party when
+                communicating with the compromised party. The second and any subsequent messages in
+                the two-way interactive handshake described in <xref target="interactive"/> are not
+                vulnerable to KCI. If resistance to KCI is desired in a single message, then it is
+                RECOMMENDED to use a nested JWS signature over the content.
+            </t>
+
+            <t>
+                When Key Agreement with Key Wrapping is used, with the same Content Encryption Key (CEK)
+                reused for multiple recipients, any of those recipients can produce a new message that
+                appears to come from the original sender and will be trusted by any of the other recipients. 
+                It is RECOMMENDED that a unique CEK is used for each recipient.
             </t>
 
         </section>
@@ -278,25 +373,10 @@
             &RFC7515;
             &RFC7516;
             &RFC7518;
-            &RFC8174;
-        </references>
-
-
-        <references title="Informative References">
-            &RFC2631;
-
-            <reference anchor="PKAE">
-                <front>
-                    <title>Authenticated Encryption in the Public-Key Setting: Security Notions and Analyses</title>
-                    <author surname="An" initials="J.">
-                        <organization>University of California at Davis</organization>
-                    </author>
-                    <date year="2001"/>
-                </front>
-                <seriesInfo name="IACR" value="ePrint 2001/079"/>
-                <format target="https://eprint.iacr.org/2001/079.ps" type="PS"/>
-            </reference>
-          <reference anchor="NIST.800-56A">
+            &RFC7748;
+            &RFC8174;  
+            
+            <reference anchor="NIST.800-56A">
               <front>
                   <title>Recommendation for Pair-Wise Key Establishment Using Discrete Logarithm Cryptography Revision 3.</title>
                   <author surname="Barker" initials="E.">
@@ -320,16 +400,36 @@
               <format target="https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-56Ar3.pdf" type="PDF"/>
           </reference>
 
-      </references>
+        </references>
 
+
+        <references title="Informative References">
+            <reference anchor="PKAE">
+                <front>
+                    <title>Authenticated Encryption in the Public-Key Setting: Security Notions and Analyses</title>
+                    <author surname="An" initials="J.">
+                        <organization>University of California at Davis</organization>
+                    </author>
+                    <date year="2001"/>
+                </front>
+                <seriesInfo name="IACR" value="ePrint 2001/079"/>
+                <format target="https://eprint.iacr.org/2001/079.ps" type="PS"/>
+            </reference>
+          </references>
+
+          <!--
       <section anchor="example" title="Example Computations">
-          <section title="ECDH-ESSS">
+          <section title="Example JWE using ECDH-1PU and A256GCM">
               <figure>
                   <artwork><![CDATA[
                       ]]></artwork>
               </figure>
           </section>
       </section>
+
+      <section anchor="handshake" title="Example Interactive Handshake">
+              </section>
+          -->
 
     </back>
 </rfc>
