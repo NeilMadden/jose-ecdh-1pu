@@ -8,7 +8,7 @@
 <!ENTITY RFC8174 PUBLIC '' 'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8174.xml'>
 ]>
 
-<rfc category="std" docName="draft-madden-jose-ecdh-1pu-00" ipr="trust200902">
+<rfc category="std" docName="draft-madden-jose-ecdh-1pu-01" ipr="trust200902">
 <?rfc toc="yes"?>
 <?rfc symrefs="yes"?>
 <?rfc sortrefs="yes"?>
@@ -35,7 +35,7 @@
             </address>
         </author>
 
-        <date day="8" month="May" year="2019"/>
+        <date day="10" month="May" year="2019"/>
 
         <area>Security</area>
         <!-- <workgroup>OAuth</workgroup> -->

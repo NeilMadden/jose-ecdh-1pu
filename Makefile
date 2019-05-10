@@ -1,4 +1,4 @@
-VERSION=00
+VERSION=01
 BASENAME=draft-madden-jose-ecdh-1pu-$(VERSION)
 
 # Use 'pip install xml2rfc'
