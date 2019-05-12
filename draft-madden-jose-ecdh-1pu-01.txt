@@ -66,23 +66,29 @@ Table of Contents
 
    1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   2
      1.1.  Requirements Terminology  . . . . . . . . . . . . . . . .   3
-   2.  Key Agreement with Elliptic Curve Diffie-Hellman Ephemeral-
-       Static Static-Static (ECDH-1PU) . . . . . . . . . . . . . . .   3
+   2.  Key Agreement with Elliptic Curve Diffie-Hellman One-Pass
+       Unified Model (ECDH-1PU)  . . . . . . . . . . . . . . . . . .   3
      2.1.  Header Parameters used for ECDH Key Agreement . . . . . .   4
-     2.2.  Key Derivation for ECDH-1PU Key Agreement . . . . . . . .   4
+       2.1.1.  "skid" Header Parameter . . . . . . . . . . . . . . .   5
+     2.2.  Key Derivation for ECDH-1PU Key Agreement . . . . . . . .   5
    3.  Two-way interactive handshake . . . . . . . . . . . . . . . .   6
    4.  IANA considerations . . . . . . . . . . . . . . . . . . . . .   7
-     4.1.  ECDH-1PU  . . . . . . . . . . . . . . . . . . . . . . . .   7
-   5.  Security Considerations . . . . . . . . . . . . . . . . . . .   7
-   6.  References  . . . . . . . . . . . . . . . . . . . . . . . . .   8
-     6.1.  Normative References  . . . . . . . . . . . . . . . . . .   8
-     6.2.  Informative References  . . . . . . . . . . . . . . . . .   8
+     4.1.  JSON Web Signature and Encryption Algorithms Registration   7
+       4.1.1.  ECDH-1PU  . . . . . . . . . . . . . . . . . . . . . .   8
+     4.2.  JSON Web Signature and Encryption Header Parameters
+           Registration  . . . . . . . . . . . . . . . . . . . . . .   8
+       4.2.1.  skid  . . . . . . . . . . . . . . . . . . . . . . . .   8
+   5.  Security Considerations . . . . . . . . . . . . . . . . . . .   8
+   6.  References  . . . . . . . . . . . . . . . . . . . . . . . . .   9
+     6.1.  Normative References  . . . . . . . . . . . . . . . . . .   9
+     6.2.  Informative References  . . . . . . . . . . . . . . . . .  10
    Appendix A.  Example ECDH-1PU Key Agreement Computation with
-                A256GCM  . . . . . . . . . . . . . . . . . . . . . .   9
-   Appendix B.  Example Interactive Handshake  . . . . . . . . . . .  12
-     B.1.  Initial message from Alice to Bob . . . . . . . . . . . .  12
-     B.2.  Response message from Bob to Alice  . . . . . . . . . . .  16
-   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .  20
+                A256GCM  . . . . . . . . . . . . . . . . . . . . . .  10
+   Appendix B.  Example Interactive Handshake  . . . . . . . . . . .  13
+     B.1.  Initial message from Alice to Bob . . . . . . . . . . . .  14
+     B.2.  Response message from Bob to Alice  . . . . . . . . . . .  18
+   Appendix C.  Document History . . . . . . . . . . . . . . . . . .  21
+   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .  22
 
 1.  Introduction
 
@@ -100,12 +106,6 @@ Table of Contents
    of authenticated encryption to be enjoyed for public key JWE as it
    currently is for symmetric cryptography.
 
-   ECDH-1PU is based on the One-Pass Unified Model for Elliptic Curve
-   Diffie-Hellman key agreement described in [NIST.800-56A].
-
-   The advantages of public key authenticated encryption with ECDH-1PU
-   compared to using nested signed-then-encrypted documents include the
-   following:
 
 
 
@@ -114,8 +114,20 @@ Madden                  Expires November 11, 2019               [Page 2]
 Internet-Draft                JOSE ECDH-1PU                     May 2019
 
 
+   ECDH-1PU is based on the One-Pass Unified Model for Elliptic Curve
+   Diffie-Hellman key agreement described in [NIST.800-56A].
+
+   The advantages of public key authenticated encryption with ECDH-1PU
+   compared to using nested signed-then-encrypted documents include the
+   following:
+
    o  The resulting message size is more compact as an additional layer
-      of headers and base64url-encoding is avoided.
+      of headers and base64url-encoding is avoided.  A 500-byte payload
+      when encrypted and authenticated with ECDH-1PU (with P-256 keys
+      and "A256GCM" Content Encryption Method) results in a 1087-byte
+      JWE in Compact Encoding.  An equivalent nested signed-then-
+      encrypted JOSE message using the same keys and encryption method
+      is 1489 bytes (37% larger).
 
    o  The same primitives are used for both confidentiality and
       authenticity, providing savings in code size for constrained
@@ -140,16 +152,23 @@ Internet-Draft                JOSE ECDH-1PU                     May 2019
    14 [RFC8174] when, and only when, they appear in all capitals, as
    shown here.
 
-2.  Key Agreement with Elliptic Curve Diffie-Hellman Ephemeral-Static
-    Static-Static (ECDH-1PU)
+2.  Key Agreement with Elliptic Curve Diffie-Hellman One-Pass Unified
+    Model (ECDH-1PU)
 
    This section defines the specifics of key agreement with Elliptic
-   Curve Diffie-Hellman Ephemeral-Static Static-Static, in combination
-   with the one-step KDF, as defined in Section 5.8.2.1 of
-   [NIST.800-56A] using the Concatenation Format of Section 5.8.2.1.1.
-   This is identical to the ConcatKDF function used by the existing JWE
-   ECDH-ES algorithm defined in Section 4.6 of [RFC7518].  As for ECDH-
-   ES, the key agreement result can be used in one of two ways:
+   Curve Diffie-Hellman One-Pass Unified Model, in combination with the
+   one-step KDF, as defined in Section 5.8.2.1 of [NIST.800-56A] using
+   the Concatenation Format of Section 5.8.2.1.1.  This is identical to
+   the ConcatKDF function used by the existing JWE ECDH-ES algorithm
+   defined in Section 4.6 of [RFC7518].  As for ECDH-ES, the key
+   agreement result can be used in one of two ways:
+
+
+
+Madden                  Expires November 11, 2019               [Page 3]
+
+Internet-Draft                JOSE ECDH-1PU                     May 2019
+
 
    1.  directly as the Content Encryption Key (CEK) for the "enc"
        algorithm, in the Direct Key Agreement mode, or
@@ -160,15 +179,6 @@ Internet-Draft                JOSE ECDH-1PU                     May 2019
 
    A new ephemeral public key value MUST be generated for each key
    agreement operation.
-
-
-
-
-
-Madden                  Expires November 11, 2019               [Page 3]
-
-Internet-Draft                JOSE ECDH-1PU                     May 2019
-
 
    In Direct Key Agreement mode, the output of the KDF MUST be a key of
    the same length as that used by the "enc" algorithm.  In this case,
@@ -208,16 +218,6 @@ Internet-Draft                JOSE ECDH-1PU                     May 2019
    producer software initializes the "apu" header to the base64url-
    encoding of the SHA-256 hash of the concatenation of the sender's
    static public key and the ephemeral public key, and the "apv" header
-   to the base64url-encoding of the SHA-256 hash of the recipient's
-   static public key.  This ensures that all keys involved in the key
-   agreement are cryptographically bound to the derived keys.
-
-2.2.  Key Derivation for ECDH-1PU Key Agreement
-
-   The key derivation process derives the agreed-upon key from the
-   shared secret Z established through the ECDH algorithm, per
-   Section 6.2.1.2 of [NIST.800-56A].  For the NIST prime order curves
-   "P-256", "P-384", and "P-521", the ECC CDH primitive for cofactor
 
 
 
@@ -226,6 +226,25 @@ Madden                  Expires November 11, 2019               [Page 4]
 Internet-Draft                JOSE ECDH-1PU                     May 2019
 
 
+   to the base64url-encoding of the SHA-256 hash of the recipient's
+   static public key.  This ensures that all keys involved in the key
+   agreement are cryptographically bound to the derived keys.
+
+2.1.1.  "skid" Header Parameter
+
+   A new Header Parameter "skid" (Sender Key ID) is registered as a hint
+   as to which of the sender's keys was used to authenticate the JWE.
+   The structure of the "skid" value is unspecified.  Its value MUST be
+   a case-sensitive string.  Use of this Header Parameter is OPTIONAL.
+   When used with a JWK, the "skid" value is used to match a JWK "kid"
+   parameter value.
+
+2.2.  Key Derivation for ECDH-1PU Key Agreement
+
+   The key derivation process derives the agreed-upon key from the
+   shared secret Z established through the ECDH algorithm, per
+   Section 6.2.1.2 of [NIST.800-56A].  For the NIST prime order curves
+   "P-256", "P-384", and "P-521", the ECC CDH primitive for cofactor
    Diffie-Hellman defined in Section 5.7.1.2 of [NIST.800-56A] is used
    (taking note that the cofactor for all these curves is 1).  For
    curves "X25519" and "X448" the appropriate ECDH primitive from
@@ -255,6 +274,14 @@ Internet-Draft                JOSE ECDH-1PU                     May 2019
       indicates the length (in octets) of Data.  In the Direct Key
       Agreement case, Data is set to the octets of the ASCII
       representation of the "enc" Header Parameter value.  In the Key
+
+
+
+Madden                  Expires November 11, 2019               [Page 5]
+
+Internet-Draft                JOSE ECDH-1PU                     May 2019
+
+
       Agreement with Key Wrapping case, Data is set to the octets of the
       ASCII representation of the "alg" (algorithm) Header Parameter
       value.
@@ -274,14 +301,6 @@ Internet-Draft                JOSE ECDH-1PU                     May 2019
       indicates the length (in octets) of Data.  If an "apv" (agreement
       PartyVInfo) Header Parameter is present, Data is set to the result
       of base64url decoding the "apv" value and Datalen is set to the
-
-
-
-Madden                  Expires November 11, 2019               [Page 5]
-
-Internet-Draft                JOSE ECDH-1PU                     May 2019
-
-
       number of octets in Data.  Otherwise, Datalen is set to 0 and Data
       is set to the empty octet sequence.
 
@@ -309,7 +328,18 @@ Internet-Draft                JOSE ECDH-1PU                     May 2019
    proceeds exactly as for Section 2, but with the originator's
    ephemeral public key used as the recipient (Party V) static public
    key.  The "alg" (algorithm) Header Parameter in the response MUST be
-   identical to the "alg" Header Parameter of the original message.
+   identical to the "alg" Header Parameter of the original message.  The
+
+
+
+
+Madden                  Expires November 11, 2019               [Page 6]
+
+Internet-Draft                JOSE ECDH-1PU                     May 2019
+
+
+   "enc" (encryption method) Header Parameter in the response MUST also
+   be identical to the "enc" Header Parameter of the original message.
 
    The value of the "apu" (Agreement PartyUInfo) Header Parameter value
    from the original message SHOULD be reflected as the "apv" (Agreement
@@ -325,36 +355,46 @@ Internet-Draft                JOSE ECDH-1PU                     May 2019
 
    After the initial message and a reply have been exchanged, the two
    parties may communicate using the derived key from the second message
-   as the encryption key for any number of additional messages.  When
-   ECDH-1PU is used in Direct Key Agreement mode, then subsequent
-   messages using the derived key MUST be encrypted using the "dir"
-   (Direct) JWE algorithm.  When used in Key Agreement with Key Wrapping
-   mode, subsequent messages using the derived key MUST be encrypted
+   as the encryption key for any number of additional messages.
+   Applications MUST specify the algorithm to be used.  The JWE
+   algorithm and encryption method used MUST use the same size key as
+   the derived key.  For example, if the derived key is 256-bits, then
+   appropriate algorithms include alg=dir and enc=A256GCM, or alg=A256KW
+   with any JWE content encryption method.
 
-
-
-Madden                  Expires November 11, 2019               [Page 6]
-
-Internet-Draft                JOSE ECDH-1PU                     May 2019
-
-
-   using the associated Key Wrapping algorithm, as shown in the
-   following table:
-
-       +----------------------------+------------------------------+
-       | ECDH-1PU "alg" Param Value | Subsequent "alg" Param Value |
-       +----------------------------+------------------------------+
-       | ECDH-1PU+A128KW            | A128KW                       |
-       | ECDH-1PU+A192KW            | A192KW                       |
-       | ECDH-1PU+A256KW            | A256KW                       |
-       +----------------------------+------------------------------+
+   If Direct encryption is used, the "enc" (encryption method) of all
+   subsequent messages MUST be identical to the "enc" Header Parameter
+   of the handshake messages.  If the same derived key is to be used for
+   messages in both directions between the two parties, the application
+   MUST specify how unique nonces/IVs are to be generated by each party
+   to avoid collisions.  It is RECOMMENDED that either a Key Wrap
+   algorithm is used, or else the derived key is used as input to a key
+   derivation function to derive separate keys for each direction.
 
 4.  IANA considerations
+
+   This section registers identifiers under the IANA JSON Web Signature
+   and Encryption Algorithms Registry established by [RFC7518] and the
+   IANA JSON Web Signature and Encryption Header Parameters registry
+   established by [RFC7515].
+
+4.1.  JSON Web Signature and Encryption Algorithms Registration
 
    This section registers JWE algorithms as per the registry established
    in [RFC7518].
 
-4.1.  ECDH-1PU
+
+
+
+
+
+
+Madden                  Expires November 11, 2019               [Page 7]
+
+Internet-Draft                JOSE ECDH-1PU                     May 2019
+
+
+4.1.1.  ECDH-1PU
 
       Algorithm Name: "ECDH-1PU"
       Algorithm Description: ECDH One-Pass Unified Model using one-pass
@@ -366,10 +406,23 @@ Internet-Draft                JOSE ECDH-1PU                     May 2019
       Algorithm Analysis Document(s): [NIST.800-56A] (Section 7.3),
       [PKAE]
 
+4.2.  JSON Web Signature and Encryption Header Parameters Registration
+
+   This section registers new Header Parameters as per the registry
+   established in [RFC7515].
+
+4.2.1.  skid
+
+      Header Parameter Name: "skid"
+      Header Parameter Description: Sender Key ID
+      Header Parameter Usage Location(s): JWE
+      Change Controller: IESG
+      Specification Document(s): Section 2.1.1
+
 5.  Security Considerations
 
-   The security considerations of [RFC7518] relevant to ECDH-ES also
-   apply to this specification.
+   The security considerations of [RFC7516] and [RFC7518] relevant to
+   ECDH-ES also apply to this specification.
 
    The security considerations of [NIST.800-56A] apply here.
 
@@ -386,25 +439,36 @@ Internet-Draft                JOSE ECDH-1PU                     May 2019
    (KCI) attacks.  If the long-term static private key of a party is
    compromised, then the attacker can not only impersonate that party to
    other parties, but also impersonate any other party when
+   communicating with the compromised party.  The second and any
+   subsequent messages in the two-way interactive handshake described in
+   Section 3 are not vulnerable to KCI.  If resistance to KCI is desired
 
 
 
-Madden                  Expires November 11, 2019               [Page 7]
+Madden                  Expires November 11, 2019               [Page 8]
 
 Internet-Draft                JOSE ECDH-1PU                     May 2019
 
 
-   communicating with the compromised party.  The second and any
-   subsequent messages in the two-way interactive handshake described in
-   Section 3 are not vulnerable to KCI.  If resistance to KCI is desired
    in a single message, then it is RECOMMENDED to use a nested JWS
    signature over the content.
 
    When Key Agreement with Key Wrapping is used, with the same Content
    Encryption Key (CEK) reused for multiple recipients, any of those
    recipients can produce a new message that appears to come from the
-   original sender and will be trusted by any of the other recipients.
-   It is RECOMMENDED that a unique CEK is used for each recipient.
+   original sender.  The new message will be indistinguishable from a
+   genuine message from the original sender to any of the other
+   participants.  The sender SHOULD use a unique CEK for each recipient
+   of a message.
+
+   The security properties of the one-pass unified model are given in
+   Section 7.3 of [NIST.800-56A].  The ECDH-1PU scheme is also related
+   (but not identical) to the "K" one-way handshake pattern of the Noise
+   Protocol Framework.  The two-way interactive handshake described in
+   Section 3 is also related to the "KK" two-way interactive handshake
+   pattern.  The security properties of these handshake patterns are
+   given in Section 7.7 of [Noise], although it should be stressed that
+   many details differ between Noise and the current specification.
 
 6.  References
 
@@ -432,6 +496,16 @@ Internet-Draft                JOSE ECDH-1PU                     May 2019
               for Security", RFC 7748, DOI 10.17487/RFC7748, January
               2016, <https://www.rfc-editor.org/info/rfc7748>.
 
+
+
+
+
+
+Madden                  Expires November 11, 2019               [Page 9]
+
+Internet-Draft                JOSE ECDH-1PU                     May 2019
+
+
    [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
               2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
               May 2017, <https://www.rfc-editor.org/info/rfc8174>.
@@ -440,15 +514,6 @@ Internet-Draft                JOSE ECDH-1PU                     May 2019
 
    [Noise]    Perrin, T., "The Noise Protocol Framework, Revision 34",
               July 2018.
-
-
-
-
-
-Madden                  Expires November 11, 2019               [Page 8]
-
-Internet-Draft                JOSE ECDH-1PU                     May 2019
-
 
    [PKAE]     An, J., "Authenticated Encryption in the Public-Key
               Setting: Security Notions and Analyses", IACR ePrint
@@ -487,6 +552,16 @@ Appendix A.  Example ECDH-1PU Key Agreement Computation with A256GCM
 
    Bob's static key-pair (in JWK format) is:
 
+
+
+
+
+
+Madden                  Expires November 11, 2019              [Page 10]
+
+Internet-Draft                JOSE ECDH-1PU                     May 2019
+
+
          {"kty":"EC",
           "crv":"P-256",
           "x":"weNJy2HscCSM6AEDTDg04biOvhFhyyWvOHQfeF_PxMQ",
@@ -495,16 +570,6 @@ Appendix A.  Example ECDH-1PU Key Agreement Computation with A256GCM
 
    The producer (Alice) generates an ephemeral key for the key agreement
    computation.  Alice's ephemeral key (in JWK format) is:
-
-
-
-
-
-
-Madden                  Expires November 11, 2019               [Page 9]
-
-Internet-Draft                JOSE ECDH-1PU                     May 2019
-
 
          {"kty":"EC",
           "crv":"P-256",
@@ -541,54 +606,51 @@ Internet-Draft                JOSE ECDH-1PU                     May 2019
 
          9e 56 d9 1d 81 71 35 d3 72 83 42 83 bf 84 26 9c
          fb 31 6e a3 da 80 6a 48 f6 da a7 79 8c fe 90 c4
+
    Zs This is set to the output of the ECDH key agreement between
       Alice's static private key and Bob's static public key.  In this
+
+
+
+
+Madden                  Expires November 11, 2019              [Page 11]
+
+Internet-Draft                JOSE ECDH-1PU                     May 2019
+
+
       example, Zs is the following octet sequence (in hexadecimal
       notation):
 
          e3 ca 34 74 38 4c 9f 62 b3 0b fd 4c 68 8b 3e 7d
          41 10 a1 b4 ba dc 3c c5 4e f7 b8 12 41 ef d5 0d
+
    Z  This is set to the concatenation of Ze followed by Zs.  In this
       example, Z is the following octet sequence (in hexadecimal
       notation):
 
-
-
-
-
-
-Madden                  Expires November 11, 2019              [Page 10]
-
-Internet-Draft                JOSE ECDH-1PU                     May 2019
-
-
-         e3 ca 34 74 38 4c 9f 62 b3 0b fd 4c 68 8b 3e 7d
-         41 10 a1 b4 ba dc 3c c5 4e f7 b8 12 41 ef d5 0d
          9e 56 d9 1d 81 71 35 d3 72 83 42 83 bf 84 26 9c
          fb 31 6e a3 da 80 6a 48 f6 da a7 79 8c fe 90 c4
+         e3 ca 34 74 38 4c 9f 62 b3 0b fd 4c 68 8b 3e 7d
+         41 10 a1 b4 ba dc 3c c5 4e f7 b8 12 41 ef d5 0d
+
    keydatalen  This value is 256 - the number of bits in the desired
       output key (because "A256GCM" uses a 256-bit key).
    AlgorithmID  This is set to the octets representing the 32-bit big-
       endian value 7 - 00 00 00 07 in hexadecimal notation - the number
       of octets in the AlgorithmID content "A256GCM", followed by the
       octets representing the ASCII string "A256GCM" - 41 32 35 36 47 43
-      4d (in hex).  The complete value is therefore:
-
-         00 00 00 07 41 32 35 36 47 43 4d
+      4d (in hex).  The complete value is therefore: 00 00 00 07 41 32
+      35 36 47 43 4d
    PartyUInfo  This is set to the octets representing the 32-bit big-
       endian value 5, followed by the octets representing the UTF-8
-      string "Alice".  In hexadecimal notation:
-
-         00 00 00 05 41 6c 69 63 65
+      string "Alice".  In hexadecimal notation: 00 00 00 05 41 6c 69 63
+      65
    PartyVInfo  This is set to the octets representing the 32-bit big-
       endian value 3, followed by the octets representing the UTF-8
-      string "Bob".  In hexadecimal notation:
-
-         00 00 00 03 42 6f 62
+      string "Bob".  In hexadecimal notation: 00 00 00 03 42 6f 62
    SuppPubInfo  This is set to the octets representing the 32-bit big-
       endian value 256 - the keydatalen value.  In hexadecimal notation:
-
-         00 00 01 00
+      00 00 01 00
    SuppPrivInfo  This is set to the empty octet sequence.
 
    Concatenating the parameters AlgorithmID through SuppPrivInfo results
@@ -601,6 +663,17 @@ Internet-Draft                JOSE ECDH-1PU                     May 2019
    Concatenating the round number 1 (00 00 00 01), Z, and the FixedInfo
    value results in a one-pass KDF round 1 hash input of (hexadecimal):
 
+
+
+
+
+
+
+Madden                  Expires November 11, 2019              [Page 12]
+
+Internet-Draft                JOSE ECDH-1PU                     May 2019
+
+
          00 00 00 01 9e 56 d9 1d 81 71 35 d3 72 83 42 83
          bf 84 26 9c fb 31 6e a3 da 80 6a 48 f6 da a7 79
          8c fe 90 c4 e3 ca 34 74 38 4c 9f 62 b3 0b fd 4c
@@ -608,15 +681,6 @@ Internet-Draft                JOSE ECDH-1PU                     May 2019
          41 ef d5 0d 00 00 00 07 41 32 35 36 47 43 4d 00
          00 00 05 41 6c 69 63 65 00 00 00 03 42 6f 62 00
          00 01 00
-
-
-
-
-
-Madden                  Expires November 11, 2019              [Page 11]
-
-Internet-Draft                JOSE ECDH-1PU                     May 2019
-
 
    The resulting derived key, which is the full 256 bits of the round 1
    hash output is:
@@ -652,6 +716,20 @@ Appendix B.  Example Interactive Handshake
    Bob's static key-pair (in JWK format) including the private key part
    is (with linebreaks added for display purposes only):
 
+
+
+
+
+
+
+
+
+
+Madden                  Expires November 11, 2019              [Page 13]
+
+Internet-Draft                JOSE ECDH-1PU                     May 2019
+
+
     {"kty":"OKP",
      "kid":"bob-static",
      "crv":"X448",
@@ -665,14 +743,6 @@ B.1.  Initial message from Alice to Bob
    Alice generates an ephemeral key-pair for her handshake with Bob.
    Alice's ephemeral key-pair in JWK format is (with linebreaks added
    for display purposes only):
-
-
-
-
-Madden                  Expires November 11, 2019              [Page 12]
-
-Internet-Draft                JOSE ECDH-1PU                     May 2019
-
 
     {"kty":"OKP",
      "kid":"alice-ephemeral",
@@ -700,6 +770,22 @@ Internet-Draft                JOSE ECDH-1PU                     May 2019
    After removing all whitespace, the octets of ASCII(BASE64URL(UTF8(JWE
    Protected Header))) are as follows (in hexadecimal notation):
 
+
+
+
+
+
+
+
+
+
+
+
+Madden                  Expires November 11, 2019              [Page 14]
+
+Internet-Draft                JOSE ECDH-1PU                     May 2019
+
+
        65 79 4a 30 65 58 41 69 4f 69 4a 4b 56 31 51 69
        4c 43 4a 6c 63 47 73 69 4f 6e 73 69 61 33 52 35
        49 6a 6f 69 54 30 74 51 49 69 77 69 59 33 4a 32
@@ -721,15 +807,6 @@ Internet-Draft                JOSE ECDH-1PU                     May 2019
 
    The resulting one-pass KDF [NIST.800-56A] parameter values are:
 
-
-
-
-
-Madden                  Expires November 11, 2019              [Page 13]
-
-Internet-Draft                JOSE ECDH-1PU                     May 2019
-
-
    Ze This is set to the output of the X448 key agreement between
       Alice's ephemeral private key and Bob's static public key.  In
       this example, Ze is the following octet sequence (in hexadecimal
@@ -739,6 +816,7 @@ Internet-Draft                JOSE ECDH-1PU                     May 2019
        61 02 40 f4 19 fc 09 2e bc 06 eb a2 c8 27 17 33
        d2 7d ea 64 c8 b6 4d 66 de c1 db ce 6d de a1 b3
        a5 d3 12 c7 9a 0c e1 47
+
    Zs This is set to the output of the X448 key agreement between
       Alice's static private key and Bob's static public key.  In this
       example, Zs is the following octet sequence (in hexadecimal
@@ -748,9 +826,21 @@ Internet-Draft                JOSE ECDH-1PU                     May 2019
        4f 0e 13 6d ed e7 75 d3 f3 a2 f4 86 b7 47 ba f0
        e0 39 b1 b6 c1 62 84 07 86 52 0c ff 0c 69 58 db
        ff a5 06 0c 08 5e 77 38
+
    Z  This is set to the concatenation of Ze followed by Zs.  In this
       example, Z is the following octet sequence (in hexadecimal
       notation):
+
+
+
+
+
+
+
+Madden                  Expires November 11, 2019              [Page 15]
+
+Internet-Draft                JOSE ECDH-1PU                     May 2019
+
 
        4c b2 b9 11 cd 1c 0a 69 d2 89 4f 39 3b 94 34 29
        61 02 40 f4 19 fc 09 2e bc 06 eb a2 c8 27 17 33
@@ -759,33 +849,22 @@ Internet-Draft                JOSE ECDH-1PU                     May 2019
        69 7b e0 99 c6 bc 3b 73 4f 0e 13 6d ed e7 75 d3
        f3 a2 f4 86 b7 47 ba f0 e0 39 b1 b6 c1 62 84 07
        86 52 0c ff 0c 69 58 db ff a5 06 0c 08 5e 77 38
+
    keydatalen  This value is 256, because "A256GCM" uses a 256-bit key.
    AlgorithmID  This is set to the octets representing the 32-bit big-
       endian value 7 followed by the octets representing the ASCII
-      string "A256GCM".  In hexadecimal notation:
-
-       00 00 00 07 41 32 35 36 47 43 4d
+      string "A256GCM".  In hexadecimal notation: 00 00 00 07 41 32 35
+      36 47 43 4d
    PartyUInfo  This is set to the octets representing the 32-bit big-
       endian value 5 followed by the octets representing the UTF-8
-      string "Alice".  In hexadecimal notation:
-
-       00 00 00 05 41 6c 69 63 65
+      string "Alice".  In hexadecimal notation: 00 00 00 05 41 6c 69 63
+      65
    PartyVInfo  This is set to the octets representing the 32-bit big-
       endian value 3 followed by the octets representing the UTF-8
-      string "Bob".  In hexadecimal notation:
-
-       00 00 00 03 42 6f 62
+      string "Bob".  In hexadecimal notation: 00 00 00 03 42 6f 62
    SuppPubInfo  This is set to the octets representing the 32-bit big
       endian value 256 - the keydatalen value.  In hexadecimal: 00 00 01
       00
-
-
-
-Madden                  Expires November 11, 2019              [Page 14]
-
-Internet-Draft                JOSE ECDH-1PU                     May 2019
-
-
    SuppPrivInfo  This is set to the empty octet sequence.
 
    Concatenating the parameters AlgorithmID through SuppPubInfo results
@@ -811,6 +890,14 @@ Internet-Draft                JOSE ECDH-1PU                     May 2019
    The resulting derived key, which is the full 256-bits of the round 1
    hash output is:
 
+
+
+
+Madden                  Expires November 11, 2019              [Page 16]
+
+Internet-Draft                JOSE ECDH-1PU                     May 2019
+
+
        3e 22 44 01 ab cf 8b 1a 93 63 bd 2b 6c 8e 85 c4
        e0 c7 b9 8c ad 3b 51 aa 3f 04 a4 9d 0c 29 da 0c
 
@@ -835,13 +922,6 @@ Internet-Draft                JOSE ECDH-1PU                     May 2019
 
        4b 39 e8 a7 70 ec eb e3 46 f4 af 77 af 22 4f 42
 
-
-
-Madden                  Expires November 11, 2019              [Page 15]
-
-Internet-Draft                JOSE ECDH-1PU                     May 2019
-
-
    The JWE Ciphertext is:
 
        b5 bd c4 83 44 54 be 02 04 f6 b5 d5 cd 9c 0d f6
@@ -863,6 +943,16 @@ Internet-Draft                JOSE ECDH-1PU                     May 2019
        3ryJPQg
 
    The message is 383 octets in size.
+
+
+
+
+
+
+Madden                  Expires November 11, 2019              [Page 17]
+
+Internet-Draft                JOSE ECDH-1PU                     May 2019
+
 
 B.2.  Response message from Bob to Alice
 
@@ -888,16 +978,6 @@ B.2.  Response message from Bob to Alice
    Bob generates the following JWE Protected Header for his reply to
    Alice (with line breaks and whitespace added for display only):
 
-
-
-
-
-
-Madden                  Expires November 11, 2019              [Page 16]
-
-Internet-Draft                JOSE ECDH-1PU                     May 2019
-
-
     {"typ":"JWT",
      "epk":{
        "kty":"OKP",
@@ -912,6 +992,23 @@ Internet-Draft                JOSE ECDH-1PU                     May 2019
 
    After removing all whitespace, the octets of ASCII(BASE64URL(UTF8(JWE
    Protected Header))) are as follows (in hexadecimal notation):
+
+
+
+
+
+
+
+
+
+
+
+
+
+Madden                  Expires November 11, 2019              [Page 18]
+
+Internet-Draft                JOSE ECDH-1PU                     May 2019
+
 
        65 79 4a 30 65 58 41 69 4f 69 4a 4b 56 31 51 69
        4c 43 4a 6c 63 47 73 69 4f 6e 73 69 61 33 52 35
@@ -943,22 +1040,31 @@ Internet-Draft                JOSE ECDH-1PU                     May 2019
        86 21 c7 ee 68 21 0e 55 3f c9 3e 9f cd c3 7f f1
        92 b9 c5 35 c2 a2 bc ee bd 03 48 79 82 f9 fb f9
        5b d2 c6 88 c8 5c 05 71
+
    Zs This is set to the output of the X448 key agreement between Bob's
       static private key and Alice's ephemeral public key from the first
       message.  In hexadecimal notation:
-
-
-
-Madden                  Expires November 11, 2019              [Page 17]
-
-Internet-Draft                JOSE ECDH-1PU                     May 2019
-
 
        4c b2 b9 11 cd 1c 0a 69 d2 89 4f 39 3b 94 34 29
        61 02 40 f4 19 fc 09 2e bc 06 eb a2 c8 27 17 33
        d2 7d ea 64 c8 b6 4d 66 de c1 db ce 6d de a1 b3
        a5 d3 12 c7 9a 0c e1 47
+
    Z  Z is the concatenation of Ze and Zs:
+
+
+
+
+
+
+
+
+
+
+Madden                  Expires November 11, 2019              [Page 19]
+
+Internet-Draft                JOSE ECDH-1PU                     May 2019
+
 
        66 83 28 4e 27 bf 2c e9 02 e1 e1 5d 51 de 25 d7
        86 21 c7 ee 68 21 0e 55 3f c9 3e 9f cd c3 7f f1
@@ -967,20 +1073,17 @@ Internet-Draft                JOSE ECDH-1PU                     May 2019
        d2 89 4f 39 3b 94 34 29 61 02 40 f4 19 fc 09 2e
        bc 06 eb a2 c8 27 17 33 d2 7d ea 64 c8 b6 4d 66
        de c1 db ce 6d de a1 b3 a5 d3 12 c7 9a 0c e1 47
+
    keydatalen  This is the value 256.
    AlgorithmID  This is set to the octets representing the 32-bit big-
       endian value 7 followed by the octets representing the ASCII
-      string "A256GCM".  In hexadecimal notation:
-
-       00 00 00 07 41 32 35 36 47 43 4d
+      string "A256GCM".  In hexadecimal notation: 00 00 00 07 41 32 35
+      36 47 43 4d
    PartyUInfo  This is set to the octets representing the 32-bit big-
       endian value 3 followed by the octets representing the UTF-8
-      string "Bob".  In hexadecimal notation:
-
-       00 00 00 03 42 6f 62
+      string "Bob".  In hexadecimal notation: 00 00 00 03 42 6f 62
    PartyVInfo  Bob echoes back Alice's PartyUInfo as the new PartyVInfo:
-
-       00 00 00 05 41 6c 69 63 65
+      00 00 00 05 41 6c 69 63 65
    SuppPubInfo  This is set to the octets representing the 32-bit big
       endian value 256 - the keydatalen value.  In hexadecimal: 00 00 01
       00
@@ -994,21 +1097,6 @@ Internet-Draft                JOSE ECDH-1PU                     May 2019
 
    Concatenating the round number 1 (00 00 00 01), Z, and the FixedInfo
    value results in the KDF round 1 hash input of:
-
-
-
-
-
-
-
-
-
-
-
-Madden                  Expires November 11, 2019              [Page 18]
-
-Internet-Draft                JOSE ECDH-1PU                     May 2019
-
 
        00 00 00 01 66 83 28 4e 27 bf 2c e9 02 e1 e1 5d
        51 de 25 d7 86 21 c7 ee 68 21 0e 55 3f c9 3e 9f
@@ -1026,6 +1114,13 @@ Internet-Draft                JOSE ECDH-1PU                     May 2019
 
        7c 22 e5 61 29 89 74 7f 4e d3 b1 94 30 e1 7d 3c
        98 14 5c 77 15 5c 71 6a 9d 5d f8 5b ea dd 79 02
+
+
+
+Madden                  Expires November 11, 2019              [Page 20]
+
+Internet-Draft                JOSE ECDH-1PU                     May 2019
+
 
    Bob then generates a random 96-bit IV for A256GCM.  In hexadecimal
    format:
@@ -1058,14 +1153,6 @@ Internet-Draft                JOSE ECDH-1PU                     May 2019
    format and sends it to Alice (with line breaks added for display
    purposes only):
 
-
-
-
-Madden                  Expires November 11, 2019              [Page 19]
-
-Internet-Draft                JOSE ECDH-1PU                     May 2019
-
-
        eyJ0eXAiOiJKV1QiLCJlcGsiOnsia3R5IjoiT0tQIiwiY3J
        2IjoiWDQ0OCIsIngiOiJfYTRsRzBFVk82MnB5Vnl1R2pDSX
        pIWUlJN3ZqRUJxZjAyQ2NOTUNIVWpXdlJNS2JrWkItWFEwd
@@ -1075,6 +1162,21 @@ Internet-Draft                JOSE ECDH-1PU                     May 2019
        UifQ..zZ-x4UjM2EQuWqdJ.Ag0WsBfUjgTS9AQXCRdqbBVX
        OVfIrRYMtLjxwVAYfaHvzLLR2muSsDK7oYtk.iUyk8ad60H
        vw1HzaZYvTlQ
+
+Appendix C.  Document History
+
+   -01  Added examples in Appendix A and Appendix B.  Added "skid"
+      Header Parameter and registration.  Fleshed out Security
+      Considerations.
+
+
+
+
+
+Madden                  Expires November 11, 2019              [Page 21]
+
+Internet-Draft                JOSE ECDH-1PU                     May 2019
+
 
 Author's Address
 
@@ -1117,4 +1219,14 @@ Author's Address
 
 
 
-Madden                  Expires November 11, 2019              [Page 20]
+
+
+
+
+
+
+
+
+
+
+Madden                  Expires November 11, 2019              [Page 22]

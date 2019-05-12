@@ -92,7 +92,11 @@
                 <list style="symbols">
                     <t>
                         The resulting message size is more compact as an additional layer of headers
-                        and base64url-encoding is avoided.
+                        and base64url-encoding is avoided. A 500-byte payload when encrypted and
+                        authenticated with ECDH-1PU (with P-256 keys and "A256GCM" Content Encryption
+                        Method) results in a 1087-byte JWE in Compact Encoding. An equivalent nested 
+                        signed-then-encrypted JOSE message using the same keys and encryption method 
+                        is 1489 bytes (37% larger).
                     </t>
                     <t>
                         The same primitives are used for both confidentiality and authenticity,
@@ -123,10 +127,10 @@
         </section>
 
         <section anchor="ecdh-1pu" 
-            title="Key Agreement with Elliptic Curve Diffie-Hellman Ephemeral-Static Static-Static (ECDH-1PU)">
+            title="Key Agreement with Elliptic Curve Diffie-Hellman One-Pass Unified Model (ECDH-1PU)">
             <t>
                 This section defines the specifics of key agreement with Elliptic Curve Diffie-Hellman
-                Ephemeral-Static Static-Static, in combination with the one-step KDF, as defined in
+                One-Pass Unified Model, in combination with the one-step KDF, as defined in
                 Section 5.8.2.1 of <xref target="NIST.800-56A"/> using the Concatenation Format of
                 Section 5.8.2.1.1. This is identical to the ConcatKDF function used by the existing
                 JWE ECDH-ES algorithm defined in Section 4.6 of <xref target="RFC7518"/>. As for ECDH-ES,
@@ -185,6 +189,15 @@
                     static public key. This ensures that all keys involved in the key agreement are
                     cryptographically bound to the derived keys.
                 </t>
+                <section anchor="skid" title="&quot;skid&quot; Header Parameter">
+                    <t>
+                        A new Header Parameter "skid" (Sender Key ID) is registered as a hint as to which 
+                        of the sender's keys was used to authenticate the JWE. The structure of the "skid"
+                        value is unspecified. Its value MUST be a case-sensitive string. Use of this Header
+                        Parameter is OPTIONAL. When used with a JWK, the "skid" value is used to match a JWK
+                        "kid" parameter value.
+                    </t>
+                </section>
             </section>
 
             <section title="Key Derivation for ECDH-1PU Key Agreement">
@@ -272,7 +285,8 @@
                 key agreement proceeds exactly as for <xref target="ecdh-1pu"/>, but with the originator's
                 ephemeral public key used as the recipient (Party V) static public key. The "alg" (algorithm)
                 Header Parameter in the response MUST be identical to the "alg" Header Parameter of the
-                original message.
+                original message. The "enc" (encryption method) Header Parameter in the response MUST also
+                be identical to the "enc" Header Parameter of the original message.
             </t>
             <t>
                 The value of the "apu" (Agreement PartyUInfo) Header Parameter value from the original
@@ -290,53 +304,75 @@
             <t>
                 After the initial message and a reply have been exchanged, the two parties may communicate
                 using the derived key from the second message as the encryption key for any number of
-                additional messages. When ECDH-1PU is used in Direct Key Agreement mode, then subsequent
-                messages using the derived key MUST be encrypted using the "dir" (Direct) JWE algorithm. When 
-                used in Key Agreement with Key Wrapping mode, subsequent messages using the derived key MUST
-                be encrypted using the associated Key Wrapping algorithm, as shown in the following table:
+                additional messages. Applications MUST specify the algorithm to be used. The JWE algorithm
+                and encryption method used MUST use the same size key as the derived key. For example, if
+                the derived key is 256-bits, then appropriate algorithms include alg=dir and enc=A256GCM,
+                or alg=A256KW with any JWE content encryption method.
             </t>
-            <texttable>
-                <ttcol align="left">ECDH-1PU "alg" Param Value</ttcol>
-                <ttcol align="left">Subsequent "alg" Param Value</ttcol>
-
-                <c>ECDH-1PU+A128KW</c>
-                <c>A128KW</c>
-
-                <c>ECDH-1PU+A192KW</c>
-                <c>A192KW</c>
-
-                <c>ECDH-1PU+A256KW</c>
-                <c>A256KW</c>
-            </texttable>
+            <t>
+                If Direct encryption is used, the "enc" (encryption method) of all subsequent messages MUST 
+                be identical to the "enc" Header Parameter of the handshake messages. If the same derived key
+                is to be used for messages in both directions between the two parties, the application MUST
+                specify how unique nonces/IVs are to be generated by each party to avoid collisions. It is 
+                RECOMMENDED that either a Key Wrap algorithm is used, or else the derived key is used as input to
+                a key derivation function to derive separate keys for each direction. 
+            </t>
         </section>
 
         <section anchor="IANA" title="IANA considerations">
             <?rfc subcompact="yes" ?>
             <t>
-                This section registers JWE algorithms as per the registry established in
-                <xref target="RFC7518"/>. 
+                This section registers identifiers under the IANA JSON Web Signature and Encryption Algorithms
+                Registry established by <xref target="RFC7518"/> and the IANA JSON Web Signature and Encryption
+                Header Parameters registry established by <xref target="RFC7515"/>.
             </t>
-
-            <section title="ECDH-1PU">
+            <section title="JSON Web Signature and Encryption Algorithms Registration">
                 <t>
-                    <list style="bullets">
-                        <t>Algorithm Name: "ECDH-1PU"</t>
-                        <t>Algorithm Description: ECDH One-Pass Unified Model using one-pass KDF</t>
-                        <t>Algorithm Usage Location(s): "alg"</t>
-                        <t>JOSE Implementation Requirements: Optional</t>
-                        <t>Change Controller: IESG</t>
-                        <t>Specification Document(s): <xref target="ecdh-1pu"/></t>
-                        <t>Algorithm Analysis Document(s): <xref target="NIST.800-56A"/> (Section 7.3), 
-                            <xref target="PKAE"/></t>
-                    </list>
+                    This section registers JWE algorithms as per the registry established in
+                    <xref target="RFC7518"/>. 
                 </t>
+
+                <section title="ECDH-1PU">
+                    <t>
+                        <list style="bullets">
+                            <t>Algorithm Name: "ECDH-1PU"</t>
+                            <t>Algorithm Description: ECDH One-Pass Unified Model using one-pass KDF</t>
+                            <t>Algorithm Usage Location(s): "alg"</t>
+                            <t>JOSE Implementation Requirements: Optional</t>
+                            <t>Change Controller: IESG</t>
+                            <t>Specification Document(s): <xref target="ecdh-1pu"/></t>
+                            <t>Algorithm Analysis Document(s): <xref target="NIST.800-56A"/> (Section 7.3), 
+                                <xref target="PKAE"/></t>
+                        </list>
+                    </t>
+                </section>
             </section>
+
+            <section title="JSON Web Signature and Encryption Header Parameters Registration">
+                <t>
+                    This section registers new Header Parameters as per the registry established in
+                    <xref target="RFC7515"/>.
+                </t>
+
+                <section title="skid">
+                    <t>
+                        <list style="bullets">
+                            <t>Header Parameter Name: "skid"</t>
+                            <t>Header Parameter Description: Sender Key ID</t>
+                            <t>Header Parameter Usage Location(s): JWE</t>
+                            <t>Change Controller: IESG</t>
+                            <t>Specification Document(s): <xref target="skid"/></t>
+                        </list>
+                    </t>
+                </section>
+            </section>
+
         </section>
 
         <section anchor="security" title="Security Considerations">
             <t>
-                The security considerations of <xref target="RFC7518"/> relevant to ECDH-ES
-                also apply to this specification.
+                The security considerations of <xref target="RFC7516"/> and <xref target="RFC7518"/> 
+                relevant to ECDH-ES also apply to this specification.
             </t>
             <t>The security considerations of <xref target="NIST.800-56A"/> apply here.</t>
 
@@ -362,8 +398,19 @@
             <t>
                 When Key Agreement with Key Wrapping is used, with the same Content Encryption Key (CEK)
                 reused for multiple recipients, any of those recipients can produce a new message that
-                appears to come from the original sender and will be trusted by any of the other recipients. 
-                It is RECOMMENDED that a unique CEK is used for each recipient.
+                appears to come from the original sender. The new message will be indistinguishable from 
+                a genuine message from the original sender to any of the other participants. The sender
+                SHOULD use a unique CEK for each recipient of a message.
+            </t>
+
+            <t>
+                The security properties of the one-pass unified model are given in Section 7.3 of
+                <xref target="NIST.800-56A"/>. The ECDH-1PU scheme is also related (but not identical) to
+                the "K" one-way handshake pattern of the Noise Protocol Framework. The two-way interactive
+                handshake described in <xref target="interactive"/> is also related to the "KK" two-way
+                interactive handshake pattern. The security properties of these handshake patterns are
+                given in Section 7.7 of <xref target="Noise"/>, although it should be stressed that many
+                details differ between Noise and the current specification.
             </t>
 
         </section>
@@ -504,28 +551,46 @@
                       This is set to the output of the ECDH key agreement between Alice's
                       ephemeral private key and Bob's static public key. In this example,
                       Ze is the following octet sequence (in hexadecimal notation):
-      <figure><artwork><![CDATA[
-      9e 56 d9 1d 81 71 35 d3 72 83 42 83 bf 84 26 9c 
-      fb 31 6e a3 da 80 6a 48 f6 da a7 79 8c fe 90 c4]]></artwork></figure>
                   </t>
+              </list>
+          </t>
+          <t>
+              <figure><artwork>
+      9e 56 d9 1d 81 71 35 d3 72 83 42 83 bf 84 26 9c 
+      fb 31 6e a3 da 80 6a 48 f6 da a7 79 8c fe 90 c4</artwork></figure>
+          </t>
+          <t>
+              <list style="hanging">
 
                   <t hangText="Zs">
                       This is set to the output of the ECDH key agreement between Alice's
                       static private key and Bob's static public key. In this example,
                       Zs is the following octet sequence (in hexadecimal notation):
-                      <figure><artwork><![CDATA[
+                  </t>
+              </list>
+          </t>
+          <t>
+              <figure><artwork><![CDATA[
       e3 ca 34 74 38 4c 9f 62 b3 0b fd 4c 68 8b 3e 7d
       41 10 a1 b4 ba dc 3c c5 4e f7 b8 12 41 ef d5 0d]]></artwork></figure>
-                  </t>
+          </t>
+          <t>
+              <list style="hanging">
                   <t hangText="Z">
                       This is set to the concatenation of Ze followed by Zs. In this example,
                       Z is the following octet sequence (in hexadecimal notation):
-                      <figure><artwork><![CDATA[
-      e3 ca 34 74 38 4c 9f 62 b3 0b fd 4c 68 8b 3e 7d
-      41 10 a1 b4 ba dc 3c c5 4e f7 b8 12 41 ef d5 0d
-      9e 56 d9 1d 81 71 35 d3 72 83 42 83 bf 84 26 9c 
-      fb 31 6e a3 da 80 6a 48 f6 da a7 79 8c fe 90 c4]]></artwork></figure>
                   </t>
+              </list>
+          </t>
+          <t>
+                      <figure><artwork><![CDATA[
+      9e 56 d9 1d 81 71 35 d3 72 83 42 83 bf 84 26 9c 
+      fb 31 6e a3 da 80 6a 48 f6 da a7 79 8c fe 90 c4
+      e3 ca 34 74 38 4c 9f 62 b3 0b fd 4c 68 8b 3e 7d
+      41 10 a1 b4 ba dc 3c c5 4e f7 b8 12 41 ef d5 0d]]></artwork></figure>
+          </t>
+          <t>
+              <list style="hanging">
                   <t hangText="keydatalen">
                       This value is 256 - the number of bits in the desired output key
                       (because "A256GCM" uses a 256-bit key).
@@ -535,36 +600,33 @@
                       7 - 00 00 00 07 in hexadecimal notation - the number of octets in
                       the AlgorithmID content "A256GCM", followed by the octets representing
                       the ASCII string "A256GCM" - 41 32 35 36 47 43 4d (in hex). The
-                      complete value is therefore: <figure><artwork><![CDATA[
-      00 00 00 07 41 32 35 36 47 43 4d]]></artwork></figure>
+                      complete value is therefore: 00 00 00 07 41 32 35 36 47 43 4d
                   </t>
                   <t hangText="PartyUInfo">
                       This is set to the octets representing the 32-bit big-endian value
                       5, followed by the octets representing the UTF-8 string "Alice". In
-                      hexadecimal notation:
-                      <figure><artwork><![CDATA[
-      00 00 00 05 41 6c 69 63 65]]></artwork></figure>
+                      hexadecimal notation: 00 00 00 05 41 6c 69 63 65
                   </t>
                   <t hangText="PartyVInfo">
                       This is set to the octets representing the 32-bit big-endian value
                       3, followed by the octets representing the UTF-8 string "Bob". In
-                      hexadecimal notation:
-                      <figure><artwork><![CDATA[
-      00 00 00 03 42 6f 62]]></artwork></figure>
+                      hexadecimal notation: 00 00 00 03 42 6f 62
                   </t>
                   <t hangText="SuppPubInfo">
                       This is set to the octets representing the 32-bit big-endian value
-                      256 - the keydatalen value. In hexadecimal notation:
-                      <figure><artwork><![CDATA[
-      00 00 01 00]]></artwork></figure>
+                      256 - the keydatalen value. In hexadecimal notation: 00 00 01 00
                   </t>
                   <t hangText="SuppPrivInfo">
                       This is set to the empty octet sequence.
                   </t>
               </list>
+          </t>
+          <t>
               Concatenating the parameters AlgorithmID through SuppPrivInfo results in a FixedInfo
               value in Concatenation Format (as per Section 5.8.2.1.1 of <xref target="NIST.800-56A"/>)
               of (in hexidecimal notation):
+          </t>
+          <t>
 <figure><artwork><![CDATA[
       00 00 00 07 41 32 35 36 47 43 4d 00 00 00 05 41 
       6c 69 63 65 00 00 00 03 42 6f 62 00 00 01 00
@@ -573,6 +635,8 @@
           <t>
               Concatenating the round number 1 (00 00 00 01), Z, and the FixedInfo value results in
               a one-pass KDF round 1 hash input of (hexadecimal):
+          </t>
+          <t>
 <figure><artwork><![CDATA[
       00 00 00 01 9e 56 d9 1d 81 71 35 d3 72 83 42 83
       bf 84 26 9c fb 31 6e a3 da 80 6a 48 f6 da a7 79
@@ -580,11 +644,12 @@
       68 8b 3e 7d 41 10 a1 b4 ba dc 3c c5 4e f7 b8 12
       41 ef d5 0d 00 00 00 07 41 32 35 36 47 43 4d 00
       00 00 05 41 6c 69 63 65 00 00 00 03 42 6f 62 00
-      00 01 00
-]]></artwork></figure>
+      00 01 00 ]]></artwork></figure>
           </t>
           <t>
               The resulting derived key, which is the full 256 bits of the round 1 hash output is:
+          </t>
+          <t>
 <figure><artwork><![CDATA[
       6c af 13 72 3d 14 85 0a d4 b4 2c d6 dd e9 35 bf 
       fd 2f ff 00 a9 ba 70 de 05 c2 03 a5 e1 72 2c a7
@@ -592,6 +657,8 @@
           </t>
           <t>
               The base64url-encoded representation of this derived key is:
+          </t>
+          <t>
 <figure><artwork><![CDATA[
       bK8Tcj0UhQrUtCzW3ek1v_0v_wCpunDeBcIDpeFyLKc
 ]]></artwork></figure>
@@ -610,6 +677,8 @@
               In this example, a producer Alice is encrypting content to a consumer Bob.
               Alice's static key-pair (in JWK format) including the private key part is
               (with linebreaks added for display purposes only):
+          </t>
+          <t>
           <figure><artwork><![CDATA[
     {"kty":"OKP",
      "kid":"alice-static",
@@ -623,6 +692,8 @@
           <t>
               Bob's static key-pair (in JWK format) including the private key part is (with
               linebreaks added for display purposes only):
+          </t>
+          <t>
           <figure><artwork><![CDATA[
     {"kty":"OKP",
      "kid":"bob-static",
@@ -638,6 +709,8 @@
                   Alice generates an ephemeral key-pair for her handshake with Bob.
                   Alice's ephemeral key-pair in JWK format is (with linebreaks added
                   for display purposes only):
+              </t>
+              <t>
           <figure><artwork><![CDATA[
     {"kty":"OKP",
      "kid":"alice-ephemeral", 
@@ -651,6 +724,8 @@
               <t>
                   The following JWE Protected Header is used for the message (with
                   line breaks and whitespace added for display purposes):
+              </t>
+              <t>
           <figure><artwork><![CDATA[
     {"typ":"JWT",
      "epk":{
@@ -662,10 +737,13 @@
      "apu":"QWxpY2U",
      "kid":"bob-static",
      "enc":"A256GCM",
-     "alg":"ECDH-1PU"}
-                  ]]></artwork></figure>
+     "alg":"ECDH-1PU"} ]]></artwork></figure>
+      </t>
+      <t>
           After removing all whitespace, the octets of ASCII(BASE64URL(UTF8(JWE Protected Header)))
           are as follows (in hexadecimal notation):
+      </t>
+      <t>
           <figure><artwork><![CDATA[
     65 79 4a 30 65 58 41 69 4f 69 4a 4b 56 31 51 69 
     4c 43 4a 6c 63 47 73 69 4f 6e 73 69 61 33 52 35 
@@ -684,8 +762,7 @@
     63 33 52 68 64 47 6c 6a 49 69 77 69 5a 57 35 6a 
     49 6a 6f 69 51 54 49 31 4e 6b 64 44 54 53 49 73 
     49 6d 46 73 5a 79 49 36 49 6b 56 44 52 45 67 74 
-    4d 56 42 56 49 6e 30
-          ]]></artwork></figure>
+    4d 56 42 56 49 6e 30 ]]></artwork></figure>
               </t>
               <t>
                   The resulting one-pass KDF <xref target="NIST.800-56A"/> parameter values are:
@@ -694,27 +771,41 @@
                           This is set to the output of the X448 key agreement between Alice's
                           ephemeral private key and Bob's static public key. In this example,
                           Ze is the following octet sequence (in hexadecimal notation):
+                      </t>
+                  </list>
+              </t>
+              <t>
                           <figure><artwork><![CDATA[
     4c b2 b9 11 cd 1c 0a 69 d2 89 4f 39 3b 94 34 29 
     61 02 40 f4 19 fc 09 2e bc 06 eb a2 c8 27 17 33
     d2 7d ea 64 c8 b6 4d 66 de c1 db ce 6d de a1 b3
-    a5 d3 12 c7 9a 0c e1 47
-                          ]]></artwork></figure>
-                      </t>
+    a5 d3 12 c7 9a 0c e1 47 ]]></artwork></figure>
+              </t>
+              <t>
+                  <list style="hanging">
                       <t hangText="Zs">
                           This is set to the output of the X448 key agreement between Alice's
                           static private key and Bob's static public key. In this example,
                           Zs is the following octet sequence (in hexadecimal notation):
+                      </t>
+                  </list>
+              </t>
+              <t>
                           <figure><artwork><![CDATA[
     d8 8e aa 18 61 a4 8e a4 69 7b e0 99 c6 bc 3b 73
     4f 0e 13 6d ed e7 75 d3 f3 a2 f4 86 b7 47 ba f0
     e0 39 b1 b6 c1 62 84 07 86 52 0c ff 0c 69 58 db
-    ff a5 06 0c 08 5e 77 38
-                          ]]></artwork></figure>
-                      </t>
+    ff a5 06 0c 08 5e 77 38 ]]></artwork></figure>
+              </t>
+              <t>
+                  <list style="hanging">
                       <t hangText="Z">
                           This is set to the concatenation of Ze followed by Zs. In this example,
                           Z is the following octet sequence (in hexadecimal notation):
+                      </t>
+                  </list>
+              </t>
+              <t>
                           <figure><artwork><![CDATA[
     4c b2 b9 11 cd 1c 0a 69 d2 89 4f 39 3b 94 34 29
     61 02 40 f4 19 fc 09 2e bc 06 eb a2 c8 27 17 33
@@ -722,35 +813,27 @@
     a5 d3 12 c7 9a 0c e1 47 d8 8e aa 18 61 a4 8e a4
     69 7b e0 99 c6 bc 3b 73 4f 0e 13 6d ed e7 75 d3
     f3 a2 f4 86 b7 47 ba f0 e0 39 b1 b6 c1 62 84 07
-    86 52 0c ff 0c 69 58 db ff a5 06 0c 08 5e 77 38
-                          ]]></artwork></figure>
-                      </t>
+    86 52 0c ff 0c 69 58 db ff a5 06 0c 08 5e 77 38 ]]></artwork></figure>
+              </t>
+              <t>
+                  <list style="hanging">
                       <t hangText="keydatalen">
                           This value is 256, because "A256GCM" uses a 256-bit key.
                       </t>
                       <t hangText="AlgorithmID">
                           This is set to the octets representing the 32-bit big-endian
                           value 7 followed by the octets representing the ASCII string
-                          "A256GCM". In hexadecimal notation:
-                          <figure><artwork><![CDATA[
-    00 00 00 07 41 32 35 36 47 43 4d
-                          ]]></artwork></figure>
+                          "A256GCM". In hexadecimal notation: 00 00 00 07 41 32 35 36 47 43 4d
                       </t>
                       <t hangText="PartyUInfo">
                           This is set to the octets representing the 32-bit big-endian
                           value 5 followed by the octets representing the UTF-8 string
-                          "Alice". In hexadecimal notation:
-                          <figure><artwork><![CDATA[
-    00 00 00 05 41 6c 69 63 65
-                          ]]></artwork></figure>
+                          "Alice". In hexadecimal notation: 00 00 00 05 41 6c 69 63 65
                       </t>
                       <t hangText="PartyVInfo">
                           This is set to the octets representing the 32-bit big-endian
                           value 3 followed by the octets representing the UTF-8 string
-                          "Bob". In hexadecimal notation:
-                          <figure><artwork><![CDATA[
-    00 00 00 03 42 6f 62
-                          ]]></artwork></figure>
+                          "Bob". In hexadecimal notation: 00 00 00 03 42 6f 62
                       </t>
                       <t hangText="SuppPubInfo">
                           This is set to the octets representing the 32-bit big endian
@@ -760,16 +843,21 @@
                           This is set to the empty octet sequence.
                       </t>
                   </list>
+              </t>
+              <t>
                   Concatenating the parameters AlgorithmID through SuppPubInfo results in
                   a FixedInfo value of (in hex):
+              </t>
+              <t>
                           <figure><artwork><![CDATA[
     00 00 00 07 41 32 35 36 47 43 4d 00 00 00 05 41 
-    6c 69 63 65 00 00 00 03 42 6f 62 00 00 01 00
-                          ]]></artwork></figure>
+    6c 69 63 65 00 00 00 03 42 6f 62 00 00 01 00 ]]></artwork></figure>
               </t>
               <t>
                   Concatenating the round number 1 (00 00 00 01), Z, and the FixedInfo value
                   results in the KDF round 1 hash input of:
+              </t>
+              <t>
                           <figure><artwork><![CDATA[
     00 00 00 01 4c b2 b9 11 cd 1c 0a 69 d2 89 4f 39 
     3b 94 34 29 61 02 40 f4 19 fc 09 2e bc 06 eb a2
@@ -780,53 +868,64 @@
     c1 62 84 07 86 52 0c ff 0c 69 58 db ff a5 06 0c
     08 5e 77 38 00 00 00 07 41 32 35 36 47 43 4d 00
     00 00 05 41 6c 69 63 65 00 00 00 03 42 6f 62 00
-    00 01 00
-                          ]]></artwork></figure>
+    00 01 00 ]]></artwork></figure>
               </t>
               <t>
                   The resulting derived key, which is the full 256-bits of the round 1
                   hash output is:
+              </t>
+              <t>
                           <figure><artwork><![CDATA[
     3e 22 44 01 ab cf 8b 1a 93 63 bd 2b 6c 8e 85 c4 
-    e0 c7 b9 8c ad 3b 51 aa 3f 04 a4 9d 0c 29 da 0c
-                          ]]></artwork></figure>
+    e0 c7 b9 8c ad 3b 51 aa 3f 04 a4 9d 0c 29 da 0c ]]></artwork></figure>
               </t>
               <t>
                   Alice then generates a random 96-bit Initialization Vector (IV) for A256GCM.
                   In hexadecimal format:
+              </t>
+              <t>
                   <figure><artwork><![CDATA[
-    3b c5 10 62 97 3c 45 8d 5a 6f 2d 8d
-                  ]]></artwork></figure>
+    3b c5 10 62 97 3c 45 8d 5a 6f 2d 8d ]]></artwork></figure>
               </t>
               <t>
                   Alice uses the derived key and the IV to encrypt and authenticate the following
                   plaintext JWT Claims Set <xref target="RFC7519"/>, with the octets of the encoded
                   JWE Protected Header as the Additional Authenticated Data.
+              </t>
+              <t>
                   <figure><artwork><![CDATA[
-    {"msg":"Hello Mike","aud":"Bob","iss":"Alice"}
-                          ]]></artwork></figure>
+    {"msg":"Hello Mike","aud":"Bob","iss":"Alice"} ]]></artwork></figure>
+              </t>
+              <t>
                   In hexadecimal notation, the UTF-8 bytes of this plaintext are:
+              </t>
+              <t>
                   <figure><artwork><![CDATA[
     7b 22 6d 73 67 22 3a 22 48 65 6c 6c 6f 20 4d 69 
     6b 65 22 2c 22 61 75 64 22 3a 22 42 6f 62 22 2c 
-    22 69 73 73 22 3a 22 41 6c 69 63 65 22 7d
-                  ]]></artwork></figure>
+    22 69 73 73 22 3a 22 41 6c 69 63 65 22 7d ]]></artwork></figure>
               </t>
               <t>
                   The resulting Authentication Tag value is:
+              </t>
+              <t>
                   <figure><artwork><![CDATA[
-    4b 39 e8 a7 70 ec eb e3 46 f4 af 77 af 22 4f 42
-                          ]]></artwork></figure>
+    4b 39 e8 a7 70 ec eb e3 46 f4 af 77 af 22 4f 42 ]]></artwork></figure>
+              </t>
+              <t>
                   The JWE Ciphertext is:
+              </t>
+              <t>
                   <figure><artwork><![CDATA[
     b5 bd c4 83 44 54 be 02 04 f6 b5 d5 cd 9c 0d f6
     95 57 ab d9 4b ba d4 4f f4 70 0e 57 55 a2 c0 fc 
-    21 ca 63 56 38 93 7b fb 06 3e 60 f4 a4 cb
-                  ]]></artwork></figure>
+    21 ca 63 56 38 93 7b fb 06 3e 60 f4 a4 cb ]]></artwork></figure>
               </t>
               <t>
                   Alice assembles the complete message in JWE Compact Serialization format
                   and sends it to Bob (with line breaks added for display purposes only):
+              </t>
+              <t>
                   <figure><artwork><![CDATA[
     eyJ0eXAiOiJKV1QiLCJlcGsiOnsia3R5IjoiT0tQIiwiY3J
     2IjoiWDQ0OCIsIngiOiI2RFJ4U2VtYUdWeDFpVkVQUnlPQW
@@ -836,8 +935,9 @@
     iZW5jIjoiQTI1NkdDTSIsImFsZyI6IkVDREgtMVBVIn0..O
     8UQYpc8RY1aby2N.tb3Eg0RUvgIE9rXVzZwN9pVXq9lLutR
     P9HAOV1WiwPwhymNWOJN7-wY-YPSkyw.Sznop3Ds6-NG9K9
-    3ryJPQg
-                  ]]></artwork></figure>
+    3ryJPQg ]]></artwork></figure>
+              </t>
+              <t>
                   The message is 383 octets in size.
               </t>
           </section>
@@ -853,6 +953,8 @@
                   Bob generates a fresh ephemeral key-pair of his own. In this example,
                   Bob's ephemeral key-pair (in JWK format) is as follows, including the
                   private key parts (with linebreaks added for display purposes only):
+              </t>
+              <t>
                   <figure><artwork><![CDATA[
     {"kty":"OKP", 
      "kid":"bob-ephemeral", 
@@ -860,12 +962,13 @@
      "x":"_a4lG0EVO62pyVyuGjCIzHYII7vjEBqf02CcNMCHUjWvRMKbkZB-XQ0uzhByXl
      jx0bNgpAvmf84",
      "d":"bNy3py2jvaYOnnzkxV3nOYazDEWTeEOEtTGK7eH-Cjp_m4uCOS-AYqmcUDJCyG
-     uFj340p3ld0NA"}
-                  ]]></artwork></figure>                          
+     uFj340p3ld0NA"} ]]></artwork></figure>                          
               </t>
               <t>
                   Bob generates the following JWE Protected Header for his reply to
                   Alice (with line breaks and whitespace added for display only):
+              </t>
+              <t>
                   <figure><artwork><![CDATA[
     {"typ":"JWT",
      "epk":{
@@ -877,13 +980,14 @@
      "apu":"Qm9i",
      "kid":"alice-ephemeral",
      "enc":"A256GCM",
-     "alg":"ECDH-1PU"}
-    ]]></artwork></figure>                          
+     "alg":"ECDH-1PU"} ]]></artwork></figure>                          
               </t>
               <t>
                   After removing all whitespace, the octets of 
                   ASCII(BASE64URL(UTF8(JWE Protected Header))) are as follows (in
                   hexadecimal notation):
+              </t>
+              <t>
                   <figure><artwork><![CDATA[
     65 79 4a 30 65 58 41 69 4f 69 4a 4b 56 31 51 69 
     4c 43 4a 6c 63 47 73 69 4f 6e 73 69 61 33 52 35 
@@ -902,8 +1006,7 @@
     5a 53 31 6c 63 47 68 6c 62 57 56 79 59 57 77 69 
     4c 43 4a 6c 62 6d 4d 69 4f 69 4a 42 4d 6a 55 32 
     52 30 4e 4e 49 69 77 69 59 57 78 6e 49 6a 6f 69 
-    52 55 4e 45 53 43 30 78 55 46 55 69 66 51 3d 3d 
-    ]]></artwork></figure>                          
+    52 55 4e 45 53 43 30 78 55 46 55 69 66 51 3d 3d ]]></artwork></figure>                          
               </t>
               <t>
                   The resulting KDF parameter values are:
@@ -913,26 +1016,40 @@
                           Bob's ephemeral private key and Alice's ephemeral public key
                           (from the first message). Note that this is an ephemeral-ephemeral
                           key agreement. In hexadecimal notation:
+                      </t>
+                  </list>
+              </t>
+              <t>
                           <figure><artwork><![CDATA[
     66 83 28 4e 27 bf 2c e9 02 e1 e1 5d 51 de 25 d7
     86 21 c7 ee 68 21 0e 55 3f c9 3e 9f cd c3 7f f1
     92 b9 c5 35 c2 a2 bc ee bd 03 48 79 82 f9 fb f9 
-    5b d2 c6 88 c8 5c 05 71
-                          ]]></artwork></figure>
+    5b d2 c6 88 c8 5c 05 71 ]]></artwork></figure>
               </t>
-              <t hangText="Zs">
+              <t>
+                  <list style="hanging">
+                      <t hangText="Zs">
                   This is set to the output of the X448 key agreement between Bob's
                   static private key and Alice's ephemeral public key from the 
                   first message. In hexadecimal notation:
+                      </t>
+                  </list>
+              </t>
+              <t>
                           <figure><artwork><![CDATA[
     4c b2 b9 11 cd 1c 0a 69 d2 89 4f 39 3b 94 34 29
     61 02 40 f4 19 fc 09 2e bc 06 eb a2 c8 27 17 33
     d2 7d ea 64 c8 b6 4d 66 de c1 db ce 6d de a1 b3
-    a5 d3 12 c7 9a 0c e1 47
-                          ]]></artwork></figure>
+    a5 d3 12 c7 9a 0c e1 47 ]]></artwork></figure>
               </t>
-              <t hangText="Z">
-                  Z is the concatenation of Ze and Zs:
+              <t>
+                  <list style="hanging">
+                      <t hangText="Z">
+                          Z is the concatenation of Ze and Zs:
+                      </t>
+                  </list>
+              </t>
+              <t>
                           <figure><artwork><![CDATA[
     66 83 28 4e 27 bf 2c e9 02 e1 e1 5d 51 de 25 d7
     86 21 c7 ee 68 21 0e 55 3f c9 3e 9f cd c3 7f f1
@@ -940,53 +1057,50 @@
     5b d2 c6 88 c8 5c 05 71 4c b2 b9 11 cd 1c 0a 69
     d2 89 4f 39 3b 94 34 29 61 02 40 f4 19 fc 09 2e
     bc 06 eb a2 c8 27 17 33 d2 7d ea 64 c8 b6 4d 66
-    de c1 db ce 6d de a1 b3 a5 d3 12 c7 9a 0c e1 47
-                          ]]></artwork></figure>
+    de c1 db ce 6d de a1 b3 a5 d3 12 c7 9a 0c e1 47 ]]></artwork></figure>
               </t>
-              <t hangText="keydatalen">
-                  This is the value 256.
+              <t>
+                  <list style="hanging">
+                      <t hangText="keydatalen">
+                          This is the value 256.
+                      </t>
+                      <t hangText="AlgorithmID">
+                          This is set to the octets representing the 32-bit big-
+                          endian value 7 followed by the octets representing the ASCII
+                          string "A256GCM".  In hexadecimal notation: 00 00 00 07 41 32 35 36 47 43 4d
+                      </t>
+                      <t hangText="PartyUInfo">
+                          This is set to the octets representing the 32-bit big-
+                          endian value 3 followed by the octets representing the UTF-8
+                          string "Bob".  In hexadecimal notation: 00 00 00 03 42 6f 62
+                      </t>
+                      <t hangText="PartyVInfo">
+                          Bob echoes back Alice's PartyUInfo as the new PartyVInfo:
+                            00 00 00 05 41 6c 69 63 65
+                      </t>
+                      <t hangText="SuppPubInfo">
+                          This is set to the octets representing the 32-bit big
+                          endian value 256 - the keydatalen value.  In hexadecimal: 00 00 01 00
+                      </t>
+                      <t hangText="SuppPrivInfo">
+                          This is set to the empty octet sequence.
+                      </t>
+                  </list>
               </t>
-              <t hangText="AlgorithmID">
-                  This is set to the octets representing the 32-bit big-
-                  endian value 7 followed by the octets representing the ASCII
-                  string "A256GCM".  In hexadecimal notation:
-                          <figure><artwork><![CDATA[
-    00 00 00 07 41 32 35 36 47 43 4d
-                          ]]></artwork></figure>
-              </t>
-              <t hangText="PartyUInfo">
-                  This is set to the octets representing the 32-bit big-
-      endian value 3 followed by the octets representing the UTF-8
-      string "Bob".  In hexadecimal notation:
-
-                          <figure><artwork><![CDATA[
-    00 00 00 03 42 6f 62
-                          ]]></artwork></figure>
-              </t>
-              <t hangText="PartyVInfo">
-                  Bob echoes back Alice's PartyUInfo as the new PartyVInfo:
-                  <figure><artwork><![CDATA[
-    00 00 00 05 41 6c 69 63 65
-                          ]]></artwork></figure>
-              </t>
-              <t hangText="SuppPubInfo">
-        This is set to the octets representing the 32-bit big
-      endian value 256 - the keydatalen value.  In hexadecimal: 00 00 01 00
-              </t>
-              <t hangText="SuppPrivInfo">
-                  This is set to the empty octet sequence.
-              </t>
-          </list>
+              <t>
           Concatenating the parameters AlgorithmID through SuppPubInfo results
-          in a FixedInfo value of (in hex):
+                  in a FixedInfo value of (in hex):
+              </t>
+              <t>
                   <figure><artwork><![CDATA[
     00 00 00 07 41 32 35 36 47 43 4d 00 00 00 03 42
-    6f 62 00 00 00 05 41 6c 69 63 65 00 00 01 00
-                          ]]></artwork></figure>
+    6f 62 00 00 00 05 41 6c 69 63 65 00 00 01 00 ]]></artwork></figure>
               </t>
               <t>
                   Concatenating the round number 1 (00 00 00 01), Z, and the FixedInfo
                   value results in the KDF round 1 hash input of:
+              </t>
+              <t>
 <figure><artwork><![CDATA[
     00 00 00 01 66 83 28 4e 27 bf 2c e9 02 e1 e1 5d
     51 de 25 d7 86 21 c7 ee 68 21 0e 55 3f c9 3e 9f
@@ -997,59 +1111,65 @@
     c8 b6 4d 66 de c1 db ce 6d de a1 b3 a5 d3 12 c7
     9a 0c e1 47 00 00 00 07 41 32 35 36 47 43 4d 00
     00 00 03 42 6f 62 00 00 00 05 41 6c 69 63 65 00
-    00 01 00
-        ]]></artwork></figure>
+    00 01 00 ]]></artwork></figure>
             </t>
             <t>
                 The resulting derived key, which is the full 256-bits of the round
                 1 hash output is:
+            </t>
+            <t>
                 <figure><artwork><![CDATA[
     7c 22 e5 61 29 89 74 7f 4e d3 b1 94 30 e1 7d 3c 
-    98 14 5c 77 15 5c 71 6a 9d 5d f8 5b ea dd 79 02
-                ]]></artwork></figure>
+    98 14 5c 77 15 5c 71 6a 9d 5d f8 5b ea dd 79 02 ]]></artwork></figure>
             </t>
             <t>
                 Bob then generates a random 96-bit IV for A256GCM. In hexadecimal
                 format:
+            </t>
+            <t>
                 <figure><artwork><![CDATA[
-    cd 9f b1 e1 48 cc d8 44 2e 5a a7 49
-                ]]></artwork></figure>
+    cd 9f b1 e1 48 cc d8 44 2e 5a a7 49 ]]></artwork></figure>
             </t>
             <t>
                 Bob uses the derived key and the IV to encrypt and authenticate
                 the following plaintext JWT Claims Set, with the octets of the
                 encoded JWE Protected Header as the Additional Authenticated Data.
-
+            </t>
+            <t>
                 <figure><artwork><![CDATA[
-    {"msg":"Hello Joe","aud":"Alice","iss":"Bob"}
-                ]]></artwork></figure>
+    {"msg":"Hello Joe","aud":"Alice","iss":"Bob"} ]]></artwork></figure>
             </t>
             <t>
                 In hexadecimal notation, the UTF-8 bytes of this plaintext are:
+            </t>
+            <t>
                 <figure><artwork><![CDATA[
     7b 22 6d 73 67 22 3a 22 48 65 6c 6c 6f 20 4a 6f 
     65 22 2c 22 61 75 64 22 3a 22 41 6c 69 63 65 22 
-    2c 22 69 73 73 22 3a 22 42 6f 62 22 7d
-                ]]></artwork></figure>
+    2c 22 69 73 73 22 3a 22 42 6f 62 22 7d ]]></artwork></figure>
             </t>
             <t>
                 The resulting Authentication Tag value is:
+            </t>
+            <t>
                 <figure><artwork><![CDATA[
-    89 4c a4 f1 a7 7a d0 7b f0 d4 7c da 65 8b d3 95
-                ]]></artwork></figure>
+    89 4c a4 f1 a7 7a d0 7b f0 d4 7c da 65 8b d3 95 ]]></artwork></figure>
             </t>
             <t>
                 The JWE Ciphertext is:
+            </t>
+            <t>
                 <figure><artwork><![CDATA[
     02 0d 16 b0 17 d4 8e 04 d2 f4 04 17 09 17 6a 6c
     15 57 39 57 c8 ad 16 0c b4 b8 f1 c1 50 18 7d a1
-    ef cc b2 d1 da 6b 92 b0 32 bb a1 8b 64
-                ]]></artwork></figure>
+    ef cc b2 d1 da 6b 92 b0 32 bb a1 8b 64 ]]></artwork></figure>
             </t>
             <t>
                 Bob assembles the complete message in JWE Compact Serialization
                 format and sends it to Alice (with line breaks added for display
                 purposes only):
+            </t>
+            <t>
                 <figure><artwork><![CDATA[
     eyJ0eXAiOiJKV1QiLCJlcGsiOnsia3R5IjoiT0tQIiwiY3J
     2IjoiWDQ0OCIsIngiOiJfYTRsRzBFVk82MnB5Vnl1R2pDSX
@@ -1059,10 +1179,20 @@
     yYWwiLCJlbmMiOiJBMjU2R0NNIiwiYWxnIjoiRUNESC0xUF
     UifQ..zZ-x4UjM2EQuWqdJ.Ag0WsBfUjgTS9AQXCRdqbBVX
     OVfIrRYMtLjxwVAYfaHvzLLR2muSsDK7oYtk.iUyk8ad60H
-    vw1HzaZYvTlQ
-                        ]]></artwork></figure>
+    vw1HzaZYvTlQ ]]></artwork></figure>
             </t>
           </section>
+      </section>
+
+      <section title="Document History">
+          <t>
+              <list style="hanging">
+                  <t hangText="-01">
+                      Added examples in <xref target="example"/> and <xref target="handshake"/>.
+                      Added "skid" Header Parameter and registration. Fleshed out Security Considerations.
+                  </t>
+              </list>
+          </t>
       </section>
 
     </back>

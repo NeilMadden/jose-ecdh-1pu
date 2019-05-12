@@ -376,12 +376,16 @@
   <link href="#rfc.toc" rel="Contents">
 <link href="#rfc.section.1" rel="Chapter" title="1 Introduction">
 <link href="#rfc.section.1.1" rel="Chapter" title="1.1 Requirements Terminology">
-<link href="#rfc.section.2" rel="Chapter" title="2 Key Agreement with Elliptic Curve Diffie-Hellman Ephemeral-Static Static-Static (ECDH-1PU)">
+<link href="#rfc.section.2" rel="Chapter" title="2 Key Agreement with Elliptic Curve Diffie-Hellman One-Pass Unified Model (ECDH-1PU)">
 <link href="#rfc.section.2.1" rel="Chapter" title="2.1 Header Parameters used for ECDH Key Agreement">
+<link href="#rfc.section.2.1.1" rel="Chapter" title='2.1.1 "skid" Header Parameter'>
 <link href="#rfc.section.2.2" rel="Chapter" title="2.2 Key Derivation for ECDH-1PU Key Agreement">
 <link href="#rfc.section.3" rel="Chapter" title="3 Two-way interactive handshake">
 <link href="#rfc.section.4" rel="Chapter" title="4 IANA considerations">
-<link href="#rfc.section.4.1" rel="Chapter" title="4.1 ECDH-1PU">
+<link href="#rfc.section.4.1" rel="Chapter" title="4.1 JSON Web Signature and Encryption Algorithms Registration">
+<link href="#rfc.section.4.1.1" rel="Chapter" title="4.1.1 ECDH-1PU">
+<link href="#rfc.section.4.2" rel="Chapter" title="4.2 JSON Web Signature and Encryption Header Parameters Registration">
+<link href="#rfc.section.4.2.1" rel="Chapter" title="4.2.1 skid">
 <link href="#rfc.section.5" rel="Chapter" title="5 Security Considerations">
 <link href="#rfc.references" rel="Chapter" title="6 References">
 <link href="#rfc.references.1" rel="Chapter" title="6.1 Normative References">
@@ -390,6 +394,7 @@
 <link href="#rfc.appendix.B" rel="Chapter" title="B Example Interactive Handshake">
 <link href="#rfc.appendix.B.1" rel="Chapter" title="B.1 Initial message from Alice to Bob">
 <link href="#rfc.appendix.B.2" rel="Chapter" title="B.2 Response message from Bob to Alice">
+<link href="#rfc.appendix.C" rel="Chapter" title="C Document History">
 <link href="#rfc.authors" rel="Chapter">
 
 
@@ -453,19 +458,27 @@
 </li>
 <ul><li>1.1.   <a href="#rfc.section.1.1">Requirements Terminology</a>
 </li>
-</ul><li>2.   <a href="#rfc.section.2">Key Agreement with Elliptic Curve Diffie-Hellman Ephemeral-Static Static-Static (ECDH-1PU)</a>
+</ul><li>2.   <a href="#rfc.section.2">Key Agreement with Elliptic Curve Diffie-Hellman One-Pass Unified Model (ECDH-1PU)</a>
 </li>
 <ul><li>2.1.   <a href="#rfc.section.2.1">Header Parameters used for ECDH Key Agreement</a>
 </li>
-<li>2.2.   <a href="#rfc.section.2.2">Key Derivation for ECDH-1PU Key Agreement</a>
+<ul><li>2.1.1.   <a href="#rfc.section.2.1.1">"skid" Header Parameter</a>
+</li>
+</ul><li>2.2.   <a href="#rfc.section.2.2">Key Derivation for ECDH-1PU Key Agreement</a>
 </li>
 </ul><li>3.   <a href="#rfc.section.3">Two-way interactive handshake</a>
 </li>
 <li>4.   <a href="#rfc.section.4">IANA considerations</a>
 </li>
-<ul><li>4.1.   <a href="#rfc.section.4.1">ECDH-1PU</a>
+<ul><li>4.1.   <a href="#rfc.section.4.1">JSON Web Signature and Encryption Algorithms Registration</a>
 </li>
-</ul><li>5.   <a href="#rfc.section.5">Security Considerations</a>
+<ul><li>4.1.1.   <a href="#rfc.section.4.1.1">ECDH-1PU</a>
+</li>
+</ul><li>4.2.   <a href="#rfc.section.4.2">JSON Web Signature and Encryption Header Parameters Registration</a>
+</li>
+<ul><li>4.2.1.   <a href="#rfc.section.4.2.1">skid</a>
+</li>
+</ul></ul><li>5.   <a href="#rfc.section.5">Security Considerations</a>
 </li>
 <li>6.   <a href="#rfc.references">References</a>
 </li>
@@ -481,7 +494,9 @@
 </li>
 <li>B.2.   <a href="#rfc.appendix.B.2">Response message from Bob to Alice</a>
 </li>
-</ul><li><a href="#rfc.authors">Author's Address</a>
+</ul><li>Appendix C.   <a href="#rfc.appendix.C">Document History</a>
+</li>
+<li><a href="#rfc.authors">Author's Address</a>
 </li>
 
 
@@ -495,7 +510,7 @@
 <p id="rfc.section.1.p.3">The advantages of public key authenticated encryption with ECDH-1PU compared to using nested signed-then-encrypted documents include the following: </p>
 
 <ul>
-<li>The resulting message size is more compact as an additional layer of headers and base64url-encoding is avoided.  </li>
+<li>The resulting message size is more compact as an additional layer of headers and base64url-encoding is avoided. A 500-byte payload when encrypted and authenticated with ECDH-1PU (with P-256 keys and "A256GCM" Content Encryption Method) results in a 1087-byte JWE in Compact Encoding. An equivalent nested signed-then-encrypted JOSE message using the same keys and encryption method is 1489 bytes (37% larger).  </li>
 <li>The same primitives are used for both confidentiality and authenticity, providing savings in code size for constrained environments.  </li>
 <li>The generic composition of signatures and public key encryption involves a number of subtle details that are essential to security <a href="#PKAE" class="xref">[PKAE]</a>.  Providing a dedicated algorithm for public key authenticated encryption reduces complexity for users of JOSE libraries.  </li>
 <li>ECDH-1PU provides only authenticity and not the stronger security properties of non-repudiation or third-party verifiability. This can be an advantage in applications where privacy, anonymity, or plausible deniability are goals.  </li>
@@ -506,9 +521,9 @@
 <a href="#rfc.section.1.1">1.1.</a> Requirements Terminology</h1>
 <p id="rfc.section.1.1.p.1">The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in BCP 14 <a href="#RFC8174" class="xref">[RFC8174]</a> when, and only when, they appear in all capitals, as shown here.</p>
 <h1 id="rfc.section.2">
-<a href="#rfc.section.2">2.</a> <a href="#ecdh-1pu" id="ecdh-1pu">Key Agreement with Elliptic Curve Diffie-Hellman Ephemeral-Static Static-Static (ECDH-1PU)</a>
+<a href="#rfc.section.2">2.</a> <a href="#ecdh-1pu" id="ecdh-1pu">Key Agreement with Elliptic Curve Diffie-Hellman One-Pass Unified Model (ECDH-1PU)</a>
 </h1>
-<p id="rfc.section.2.p.1">This section defines the specifics of key agreement with Elliptic Curve Diffie-Hellman Ephemeral-Static Static-Static, in combination with the one-step KDF, as defined in Section 5.8.2.1 of <a href="#NIST.800-56A" class="xref">[NIST.800-56A]</a> using the Concatenation Format of Section 5.8.2.1.1. This is identical to the ConcatKDF function used by the existing JWE ECDH-ES algorithm defined in Section 4.6 of <a href="#RFC7518" class="xref">[RFC7518]</a>. As for ECDH-ES, the key agreement result can be used in one of two ways: </p>
+<p id="rfc.section.2.p.1">This section defines the specifics of key agreement with Elliptic Curve Diffie-Hellman One-Pass Unified Model, in combination with the one-step KDF, as defined in Section 5.8.2.1 of <a href="#NIST.800-56A" class="xref">[NIST.800-56A]</a> using the Concatenation Format of Section 5.8.2.1.1. This is identical to the ConcatKDF function used by the existing JWE ECDH-ES algorithm defined in Section 4.6 of <a href="#RFC7518" class="xref">[RFC7518]</a>. As for ECDH-ES, the key agreement result can be used in one of two ways: </p>
 
 <ol>
 <li>directly as the Content Encryption Key (CEK) for the "enc" algorithm, in the Direct Key Agreement mode, or</li>
@@ -544,6 +559,10 @@
 <a href="#rfc.section.2.1">2.1.</a> Header Parameters used for ECDH Key Agreement</h1>
 <p id="rfc.section.2.1.p.1">The "epk" (ephemeral public key), "apu" (Agreement PartyUInfo), and "apv" (Agreement PartyVInfo) header parameters are used in ECDH-1PU exactly as defined in Section 4.6.1 of <a href="#RFC7518" class="xref">[RFC7518]</a>.  </p>
 <p id="rfc.section.2.1.p.2">When no other values are supplied, it is RECOMMENDED that the producer software initializes the "apu" header to the base64url-encoding of the SHA-256 hash of the concatenation of the sender's static public key and the ephemeral public key, and the "apv" header to the base64url-encoding of the SHA-256 hash of the recipient's static public key. This ensures that all keys involved in the key agreement are cryptographically bound to the derived keys.  </p>
+<h1 id="rfc.section.2.1.1">
+<a href="#rfc.section.2.1.1">2.1.1.</a> <a href="#skid" id="skid">"skid" Header Parameter</a>
+</h1>
+<p id="rfc.section.2.1.1.p.1">A new Header Parameter "skid" (Sender Key ID) is registered as a hint as to which of the sender's keys was used to authenticate the JWE. The structure of the "skid" value is unspecified. Its value MUST be a case-sensitive string. Use of this Header Parameter is OPTIONAL. When used with a JWK, the "skid" value is used to match a JWK "kid" parameter value.  </p>
 <h1 id="rfc.section.2.2">
 <a href="#rfc.section.2.2">2.2.</a> Key Derivation for ECDH-1PU Key Agreement</h1>
 <p id="rfc.section.2.2.p.1">The key derivation process derives the agreed-upon key from the shared secret Z established through the ECDH algorithm, per Section 6.2.1.2 of <a href="#NIST.800-56A" class="xref">[NIST.800-56A]</a>.  For the NIST prime order curves "P-256", "P-384", and "P-521", the ECC CDH primitive for cofactor Diffie-Hellman defined in Section 5.7.1.2 of <a href="#NIST.800-56A" class="xref">[NIST.800-56A]</a> is used (taking note that the cofactor for all these curves is 1). For curves "X25519" and "X448" the appropriate ECDH primitive from Section 5 of <a href="#RFC7748" class="xref">[RFC7748]</a> is used.  </p>
@@ -571,37 +590,21 @@
 <h1 id="rfc.section.3">
 <a href="#rfc.section.3">3.</a> <a href="#interactive" id="interactive">Two-way interactive handshake</a>
 </h1>
-<p id="rfc.section.3.p.1">A party that has received a JWE encrypted with ECDH-1PU MAY reply to that message by creating a new JWE using ECDH-1PU, but using the ephemeral public key ("epk") from the first message as if it was the originating party's static public key. In this case, key agreement proceeds exactly as for <a href="#ecdh-1pu" class="xref">Section 2</a>, but with the originator's ephemeral public key used as the recipient (Party V) static public key. The "alg" (algorithm) Header Parameter in the response MUST be identical to the "alg" Header Parameter of the original message.  </p>
+<p id="rfc.section.3.p.1">A party that has received a JWE encrypted with ECDH-1PU MAY reply to that message by creating a new JWE using ECDH-1PU, but using the ephemeral public key ("epk") from the first message as if it was the originating party's static public key. In this case, key agreement proceeds exactly as for <a href="#ecdh-1pu" class="xref">Section 2</a>, but with the originator's ephemeral public key used as the recipient (Party V) static public key. The "alg" (algorithm) Header Parameter in the response MUST be identical to the "alg" Header Parameter of the original message. The "enc" (encryption method) Header Parameter in the response MUST also be identical to the "enc" Header Parameter of the original message.  </p>
 <p id="rfc.section.3.p.2">The value of the "apu" (Agreement PartyUInfo) Header Parameter value from the original message SHOULD be reflected as the "apv" (Agreement PartyVInfo) Header Parameter value in the new message. Applications need to specify how the new "apu" Header Parameter should be constructed.  </p>
 <p id="rfc.section.3.p.3">If a "kid" claim was included in the ephemeral public key of the original message, then a "kid" Header Parameter with the same value MUST be included in the reply JWE.  </p>
 <p id="rfc.section.3.p.4">See <a href="#handshake" class="xref">Appendix B</a> for an example handshake using this method.  </p>
-<p id="rfc.section.3.p.5">After the initial message and a reply have been exchanged, the two parties may communicate using the derived key from the second message as the encryption key for any number of additional messages. When ECDH-1PU is used in Direct Key Agreement mode, then subsequent messages using the derived key MUST be encrypted using the "dir" (Direct) JWE algorithm. When used in Key Agreement with Key Wrapping mode, subsequent messages using the derived key MUST be encrypted using the associated Key Wrapping algorithm, as shown in the following table: </p>
-<table cellpadding="3" cellspacing="0" class="tt full center">
-<thead><tr>
-<th class="left">ECDH-1PU "alg" Param Value</th>
-<th class="left">Subsequent "alg" Param Value</th>
-</tr></thead>
-<tbody>
-<tr>
-<td class="left">ECDH-1PU+A128KW</td>
-<td class="left">A128KW</td>
-</tr>
-<tr>
-<td class="left">ECDH-1PU+A192KW</td>
-<td class="left">A192KW</td>
-</tr>
-<tr>
-<td class="left">ECDH-1PU+A256KW</td>
-<td class="left">A256KW</td>
-</tr>
-</tbody>
-</table>
+<p id="rfc.section.3.p.5">After the initial message and a reply have been exchanged, the two parties may communicate using the derived key from the second message as the encryption key for any number of additional messages. Applications MUST specify the algorithm to be used. The JWE algorithm and encryption method used MUST use the same size key as the derived key. For example, if the derived key is 256-bits, then appropriate algorithms include alg=dir and enc=A256GCM, or alg=A256KW with any JWE content encryption method.  </p>
+<p id="rfc.section.3.p.6">If Direct encryption is used, the "enc" (encryption method) of all subsequent messages MUST be identical to the "enc" Header Parameter of the handshake messages. If the same derived key is to be used for messages in both directions between the two parties, the application MUST specify how unique nonces/IVs are to be generated by each party to avoid collisions. It is RECOMMENDED that either a Key Wrap algorithm is used, or else the derived key is used as input to a key derivation function to derive separate keys for each direction.  </p>
 <h1 id="rfc.section.4">
 <a href="#rfc.section.4">4.</a> <a href="#IANA" id="IANA">IANA considerations</a>
 </h1>
-<p id="rfc.section.4.p.1">This section registers JWE algorithms as per the registry established in <a href="#RFC7518" class="xref">[RFC7518]</a>.  </p>
+<p id="rfc.section.4.p.1">This section registers identifiers under the IANA JSON Web Signature and Encryption Algorithms Registry established by <a href="#RFC7518" class="xref">[RFC7518]</a> and the IANA JSON Web Signature and Encryption Header Parameters registry established by <a href="#RFC7515" class="xref">[RFC7515]</a>.  </p>
 <h1 id="rfc.section.4.1">
-<a href="#rfc.section.4.1">4.1.</a> ECDH-1PU</h1>
+<a href="#rfc.section.4.1">4.1.</a> JSON Web Signature and Encryption Algorithms Registration</h1>
+<p id="rfc.section.4.1.p.1">This section registers JWE algorithms as per the registry established in <a href="#RFC7518" class="xref">[RFC7518]</a>.  </p>
+<h1 id="rfc.section.4.1.1">
+<a href="#rfc.section.4.1.1">4.1.1.</a> ECDH-1PU</h1>
 <p></p>
 
 <ul class="empty">
@@ -617,14 +620,32 @@
 </ul>
 
 <p> </p>
+<h1 id="rfc.section.4.2">
+<a href="#rfc.section.4.2">4.2.</a> JSON Web Signature and Encryption Header Parameters Registration</h1>
+<p id="rfc.section.4.2.p.1">This section registers new Header Parameters as per the registry established in <a href="#RFC7515" class="xref">[RFC7515]</a>.  </p>
+<h1 id="rfc.section.4.2.1">
+<a href="#rfc.section.4.2.1">4.2.1.</a> skid</h1>
+<p></p>
+
+<ul class="empty">
+<li>Header Parameter Name: "skid"</li>
+<li>Header Parameter Description: Sender Key ID</li>
+<li>Header Parameter Usage Location(s): JWE</li>
+<li>Change Controller: IESG</li>
+<li>Specification Document(s): <a href="#skid" class="xref">Section 2.1.1</a>
+</li>
+</ul>
+
+<p> </p>
 <h1 id="rfc.section.5">
 <a href="#rfc.section.5">5.</a> <a href="#security" id="security">Security Considerations</a>
 </h1>
-<p id="rfc.section.5.p.1">The security considerations of <a href="#RFC7518" class="xref">[RFC7518]</a> relevant to ECDH-ES also apply to this specification.  </p>
+<p id="rfc.section.5.p.1">The security considerations of <a href="#RFC7516" class="xref">[RFC7516]</a> and <a href="#RFC7518" class="xref">[RFC7518]</a> relevant to ECDH-ES also apply to this specification.  </p>
 <p id="rfc.section.5.p.2">The security considerations of <a href="#NIST.800-56A" class="xref">[NIST.800-56A]</a> apply here.</p>
 <p id="rfc.section.5.p.3">When performing an ECDH key agreement between a static private key and any untrusted public key, care should be taken to ensure that the public key is a valid point on the same curve as the private key. Failure to do so may result in compromise of the static private key. For the NIST curves P-256, P-384, and P-521, appropriate validation routines are given in Section 5.6.2.3.3 of <a href="#NIST.800-56A" class="xref">[NIST.800-56A]</a>. For the curves used by X25519 and X448, consult the security considerations of <a href="#RFC7748" class="xref">[RFC7748]</a>.  </p>
 <p id="rfc.section.5.p.4">The ECDH-1PU algorithm is vulnerable to Key Compromise Impersonation (KCI) attacks. If the long-term static private key of a party is compromised, then the attacker can not only impersonate that party to other parties, but also impersonate any other party when communicating with the compromised party. The second and any subsequent messages in the two-way interactive handshake described in <a href="#interactive" class="xref">Section 3</a> are not vulnerable to KCI. If resistance to KCI is desired in a single message, then it is RECOMMENDED to use a nested JWS signature over the content.  </p>
-<p id="rfc.section.5.p.5">When Key Agreement with Key Wrapping is used, with the same Content Encryption Key (CEK) reused for multiple recipients, any of those recipients can produce a new message that appears to come from the original sender and will be trusted by any of the other recipients.  It is RECOMMENDED that a unique CEK is used for each recipient.  </p>
+<p id="rfc.section.5.p.5">When Key Agreement with Key Wrapping is used, with the same Content Encryption Key (CEK) reused for multiple recipients, any of those recipients can produce a new message that appears to come from the original sender. The new message will be indistinguishable from a genuine message from the original sender to any of the other participants. The sender SHOULD use a unique CEK for each recipient of a message.  </p>
+<p id="rfc.section.5.p.6">The security properties of the one-pass unified model are given in Section 7.3 of <a href="#NIST.800-56A" class="xref">[NIST.800-56A]</a>. The ECDH-1PU scheme is also related (but not identical) to the "K" one-way handshake pattern of the Noise Protocol Framework. The two-way interactive handshake described in <a href="#interactive" class="xref">Section 3</a> is also related to the "KK" two-way interactive handshake pattern. The security properties of these handshake patterns are given in Section 7.7 of <a href="#Noise" class="xref">[Noise]</a>, although it should be stressed that many details differ between Noise and the current specification.  </p>
 <h1 id="rfc.references">
 <a href="#rfc.references">6.</a> References</h1>
 <h1 id="rfc.references.1">
@@ -728,53 +749,69 @@
        }
      }
       </pre>
-<pre>
-      9e 56 d9 1d 81 71 35 d3 72 83 42 83 bf 84 26 9c 
-      fb 31 6e a3 da 80 6a 48 f6 da a7 79 8c fe 90 c4</pre>
-<pre>
-      e3 ca 34 74 38 4c 9f 62 b3 0b fd 4c 68 8b 3e 7d
-      41 10 a1 b4 ba dc 3c c5 4e f7 b8 12 41 ef d5 0d</pre>
-<pre>
-      e3 ca 34 74 38 4c 9f 62 b3 0b fd 4c 68 8b 3e 7d
-      41 10 a1 b4 ba dc 3c c5 4e f7 b8 12 41 ef d5 0d
-      9e 56 d9 1d 81 71 35 d3 72 83 42 83 bf 84 26 9c 
-      fb 31 6e a3 da 80 6a 48 f6 da a7 79 8c fe 90 c4</pre>
-<pre>
-      00 00 00 07 41 32 35 36 47 43 4d</pre>
-<pre>
-      00 00 00 05 41 6c 69 63 65</pre>
-<pre>
-      00 00 00 03 42 6f 62</pre>
-<pre>
-      00 00 01 00</pre>
-<pre>
-      00 00 00 07 41 32 35 36 47 43 4d 00 00 00 05 41 
-      6c 69 63 65 00 00 00 03 42 6f 62 00 00 01 00
-</pre>
-<p id="rfc.section.A.p.7">The resulting one-pass KDF <a href="#NIST.800-56A" class="xref">[NIST.800-56A]</a> parameter values are: <a href="#NIST.800-56A" class="xref">[NIST.800-56A]</a>) of (in hexidecimal notation): </p>
+<p id="rfc.section.A.p.7">The resulting one-pass KDF <a href="#NIST.800-56A" class="xref">[NIST.800-56A]</a> parameter values are: </p>
 
 <dl>
 <dt>Ze</dt>
 <dd style="margin-left: 8">This is set to the output of the ECDH key agreement between Alice's ephemeral private key and Bob's static public key. In this example, Ze is the following octet sequence (in hexadecimal notation): </dd>
+</dl>
+
+<p> </p>
+<pre>
+      9e 56 d9 1d 81 71 35 d3 72 83 42 83 bf 84 26 9c 
+      fb 31 6e a3 da 80 6a 48 f6 da a7 79 8c fe 90 c4</pre>
+<p></p>
+<p></p>
+
+<dl>
 <dt>Zs</dt>
 <dd style="margin-left: 8">This is set to the output of the ECDH key agreement between Alice's static private key and Bob's static public key. In this example, Zs is the following octet sequence (in hexadecimal notation): </dd>
+</dl>
+
+<p> </p>
+<pre>
+      e3 ca 34 74 38 4c 9f 62 b3 0b fd 4c 68 8b 3e 7d
+      41 10 a1 b4 ba dc 3c c5 4e f7 b8 12 41 ef d5 0d</pre>
+<p></p>
+<p></p>
+
+<dl>
 <dt>Z</dt>
 <dd style="margin-left: 8">This is set to the concatenation of Ze followed by Zs. In this example, Z is the following octet sequence (in hexadecimal notation): </dd>
+</dl>
+
+<p> </p>
+<pre>
+      9e 56 d9 1d 81 71 35 d3 72 83 42 83 bf 84 26 9c 
+      fb 31 6e a3 da 80 6a 48 f6 da a7 79 8c fe 90 c4
+      e3 ca 34 74 38 4c 9f 62 b3 0b fd 4c 68 8b 3e 7d
+      41 10 a1 b4 ba dc 3c c5 4e f7 b8 12 41 ef d5 0d</pre>
+<p></p>
+<p></p>
+
+<dl>
 <dt>keydatalen</dt>
 <dd style="margin-left: 8">This value is 256 - the number of bits in the desired output key (because "A256GCM" uses a 256-bit key).  </dd>
 <dt>AlgorithmID</dt>
-<dd style="margin-left: 8">This is set to the octets representing the 32-bit big-endian value 7 - 00 00 00 07 in hexadecimal notation - the number of octets in the AlgorithmID content "A256GCM", followed by the octets representing the ASCII string "A256GCM" - 41 32 35 36 47 43 4d (in hex). The complete value is therefore: </dd>
+<dd style="margin-left: 8">This is set to the octets representing the 32-bit big-endian value 7 - 00 00 00 07 in hexadecimal notation - the number of octets in the AlgorithmID content "A256GCM", followed by the octets representing the ASCII string "A256GCM" - 41 32 35 36 47 43 4d (in hex). The complete value is therefore: 00 00 00 07 41 32 35 36 47 43 4d </dd>
 <dt>PartyUInfo</dt>
-<dd style="margin-left: 8">This is set to the octets representing the 32-bit big-endian value 5, followed by the octets representing the UTF-8 string "Alice". In hexadecimal notation: </dd>
+<dd style="margin-left: 8">This is set to the octets representing the 32-bit big-endian value 5, followed by the octets representing the UTF-8 string "Alice". In hexadecimal notation: 00 00 00 05 41 6c 69 63 65 </dd>
 <dt>PartyVInfo</dt>
-<dd style="margin-left: 8">This is set to the octets representing the 32-bit big-endian value 3, followed by the octets representing the UTF-8 string "Bob". In hexadecimal notation: </dd>
+<dd style="margin-left: 8">This is set to the octets representing the 32-bit big-endian value 3, followed by the octets representing the UTF-8 string "Bob". In hexadecimal notation: 00 00 00 03 42 6f 62 </dd>
 <dt>SuppPubInfo</dt>
-<dd style="margin-left: 8">This is set to the octets representing the 32-bit big-endian value 256 - the keydatalen value. In hexadecimal notation: </dd>
+<dd style="margin-left: 8">This is set to the octets representing the 32-bit big-endian value 256 - the keydatalen value. In hexadecimal notation: 00 00 01 00 </dd>
 <dt>SuppPrivInfo</dt>
 <dd style="margin-left: 8">This is set to the empty octet sequence.  </dd>
 </dl>
 
-<p> Concatenating the parameters AlgorithmID through SuppPrivInfo results in a FixedInfo value in Concatenation Format (as per Section 5.8.2.1.1 of </p>
+<p> </p>
+<p id="rfc.section.A.p.14">Concatenating the parameters AlgorithmID through SuppPrivInfo results in a FixedInfo value in Concatenation Format (as per Section 5.8.2.1.1 of <a href="#NIST.800-56A" class="xref">[NIST.800-56A]</a>) of (in hexidecimal notation): </p>
+<pre>
+      00 00 00 07 41 32 35 36 47 43 4d 00 00 00 05 41 
+      6c 69 63 65 00 00 00 03 42 6f 62 00 00 01 00
+</pre>
+<p></p>
+<p id="rfc.section.A.p.16">Concatenating the round number 1 (00 00 00 01), Z, and the FixedInfo value results in a one-pass KDF round 1 hash input of (hexadecimal): </p>
 <pre>
       00 00 00 01 9e 56 d9 1d 81 71 35 d3 72 83 42 83
       bf 84 26 9c fb 31 6e a3 da 80 6a 48 f6 da a7 79
@@ -782,22 +819,24 @@
       68 8b 3e 7d 41 10 a1 b4 ba dc 3c c5 4e f7 b8 12
       41 ef d5 0d 00 00 00 07 41 32 35 36 47 43 4d 00
       00 00 05 41 6c 69 63 65 00 00 00 03 42 6f 62 00
-      00 01 00
-</pre>
-<p id="rfc.section.A.p.8">Concatenating the round number 1 (00 00 00 01), Z, and the FixedInfo value results in a one-pass KDF round 1 hash input of (hexadecimal): </p>
+      00 01 00 </pre>
+<p></p>
+<p id="rfc.section.A.p.18">The resulting derived key, which is the full 256 bits of the round 1 hash output is: </p>
 <pre>
       6c af 13 72 3d 14 85 0a d4 b4 2c d6 dd e9 35 bf 
       fd 2f ff 00 a9 ba 70 de 05 c2 03 a5 e1 72 2c a7
 </pre>
-<p id="rfc.section.A.p.9">The resulting derived key, which is the full 256 bits of the round 1 hash output is: </p>
+<p></p>
+<p id="rfc.section.A.p.20">The base64url-encoded representation of this derived key is: </p>
 <pre>
       bK8Tcj0UhQrUtCzW3ek1v_0v_wCpunDeBcIDpeFyLKc
 </pre>
-<p id="rfc.section.A.p.10">The base64url-encoded representation of this derived key is: </p>
+<p></p>
 <h1 id="rfc.appendix.B">
 <a href="#rfc.appendix.B">Appendix B.</a> <a href="#handshake" id="handshake">Example Interactive Handshake</a>
 </h1>
 <p id="rfc.section.B.p.1">This example use ECDH-1PU in Direct Key Agreement mode using the X448 curve from <a href="#RFC8037" class="xref">[RFC8037]</a> to perform a two-way interactive handshake.  When used in this way, ECDH-1PU has similar security properties to the "KK" interactive handshake pattern of <a href="#Noise" class="xref">[Noise]</a>. Messages are encrypted using the "A256GCM" encryption method ("enc" Header Parameter value).  </p>
+<p id="rfc.section.B.p.2">In this example, a producer Alice is encrypting content to a consumer Bob.  Alice's static key-pair (in JWK format) including the private key part is (with linebreaks added for display purposes only): </p>
 <pre>
     {"kty":"OKP",
      "kid":"alice-static",
@@ -807,7 +846,8 @@
      "d":"hJW9knOYfyCIkZnW922U81uDNNfAwcVeNcpbaQIKyh0iW5LSpDLSmBdPSyvOh7
      J4u9hArU2uoX0"}
           </pre>
-<p id="rfc.section.B.p.2">In this example, a producer Alice is encrypting content to a consumer Bob.  Alice's static key-pair (in JWK format) including the private key part is (with linebreaks added for display purposes only): </p>
+<p></p>
+<p id="rfc.section.B.p.4">Bob's static key-pair (in JWK format) including the private key part is (with linebreaks added for display purposes only): </p>
 <pre>
     {"kty":"OKP",
      "kid":"bob-static",
@@ -817,9 +857,10 @@
      "d":"HGKc9R7_Zso3BCnrhzA9GzOzHKHOkMYvb_n54aJ1qkO1qYYTEUS0OQmBZTq1NK
      R5_kmiX5e5r-I"}
           </pre>
-<p id="rfc.section.B.p.3">Bob's static key-pair (in JWK format) including the private key part is (with linebreaks added for display purposes only): </p>
+<p></p>
 <h1 id="rfc.appendix.B.1">
 <a href="#rfc.appendix.B.1">B.1.</a> Initial message from Alice to Bob</h1>
+<p id="rfc.section.B.1.p.1">Alice generates an ephemeral key-pair for her handshake with Bob.  Alice's ephemeral key-pair in JWK format is (with linebreaks added for display purposes only): </p>
 <pre>
     {"kty":"OKP",
      "kid":"alice-ephemeral", 
@@ -829,7 +870,8 @@
      "d":"8epzr7H0N7ZIIOZeNckLL3iAHfSmIDeb-cMSgI8PJzyQfjZB0tHoGFtkQG7cAK
      xP0Fi6Bbfbe7I"}
           </pre>
-<p id="rfc.section.B.1.p.1">Alice generates an ephemeral key-pair for her handshake with Bob.  Alice's ephemeral key-pair in JWK format is (with linebreaks added for display purposes only): </p>
+<p></p>
+<p id="rfc.section.B.1.p.3">The following JWE Protected Header is used for the message (with line breaks and whitespace added for display purposes): </p>
 <pre>
     {"typ":"JWT",
      "epk":{
@@ -841,8 +883,9 @@
      "apu":"QWxpY2U",
      "kid":"bob-static",
      "enc":"A256GCM",
-     "alg":"ECDH-1PU"}
-                  </pre>
+     "alg":"ECDH-1PU"} </pre>
+<p></p>
+<p id="rfc.section.B.1.p.5">After removing all whitespace, the octets of ASCII(BASE64URL(UTF8(JWE Protected Header))) are as follows (in hexadecimal notation): </p>
 <pre>
     65 79 4a 30 65 58 41 69 4f 69 4a 4b 56 31 51 69 
     4c 43 4a 6c 63 47 73 69 4f 6e 73 69 61 33 52 35 
@@ -861,21 +904,44 @@
     63 33 52 68 64 47 6c 6a 49 69 77 69 5a 57 35 6a 
     49 6a 6f 69 51 54 49 31 4e 6b 64 44 54 53 49 73 
     49 6d 46 73 5a 79 49 36 49 6b 56 44 52 45 67 74 
-    4d 56 42 56 49 6e 30
-          </pre>
-<p id="rfc.section.B.1.p.2">The following JWE Protected Header is used for the message (with line breaks and whitespace added for display purposes): </p>
+    4d 56 42 56 49 6e 30 </pre>
+<p></p>
+<p id="rfc.section.B.1.p.7">The resulting one-pass KDF <a href="#NIST.800-56A" class="xref">[NIST.800-56A]</a> parameter values are: </p>
+
+<dl>
+<dt>Ze</dt>
+<dd style="margin-left: 8">This is set to the output of the X448 key agreement between Alice's ephemeral private key and Bob's static public key. In this example, Ze is the following octet sequence (in hexadecimal notation): </dd>
+</dl>
+
+<p> </p>
 <pre>
     4c b2 b9 11 cd 1c 0a 69 d2 89 4f 39 3b 94 34 29 
     61 02 40 f4 19 fc 09 2e bc 06 eb a2 c8 27 17 33
     d2 7d ea 64 c8 b6 4d 66 de c1 db ce 6d de a1 b3
-    a5 d3 12 c7 9a 0c e1 47
-                          </pre>
+    a5 d3 12 c7 9a 0c e1 47 </pre>
+<p></p>
+<p></p>
+
+<dl>
+<dt>Zs</dt>
+<dd style="margin-left: 8">This is set to the output of the X448 key agreement between Alice's static private key and Bob's static public key. In this example, Zs is the following octet sequence (in hexadecimal notation): </dd>
+</dl>
+
+<p> </p>
 <pre>
     d8 8e aa 18 61 a4 8e a4 69 7b e0 99 c6 bc 3b 73
     4f 0e 13 6d ed e7 75 d3 f3 a2 f4 86 b7 47 ba f0
     e0 39 b1 b6 c1 62 84 07 86 52 0c ff 0c 69 58 db
-    ff a5 06 0c 08 5e 77 38
-                          </pre>
+    ff a5 06 0c 08 5e 77 38 </pre>
+<p></p>
+<p></p>
+
+<dl>
+<dt>Z</dt>
+<dd style="margin-left: 8">This is set to the concatenation of Ze followed by Zs. In this example, Z is the following octet sequence (in hexadecimal notation): </dd>
+</dl>
+
+<p> </p>
 <pre>
     4c b2 b9 11 cd 1c 0a 69 d2 89 4f 39 3b 94 34 29
     61 02 40 f4 19 fc 09 2e bc 06 eb a2 c8 27 17 33
@@ -883,45 +949,32 @@
     a5 d3 12 c7 9a 0c e1 47 d8 8e aa 18 61 a4 8e a4
     69 7b e0 99 c6 bc 3b 73 4f 0e 13 6d ed e7 75 d3
     f3 a2 f4 86 b7 47 ba f0 e0 39 b1 b6 c1 62 84 07
-    86 52 0c ff 0c 69 58 db ff a5 06 0c 08 5e 77 38
-                          </pre>
-<pre>
-    00 00 00 07 41 32 35 36 47 43 4d
-                          </pre>
-<pre>
-    00 00 00 05 41 6c 69 63 65
-                          </pre>
-<pre>
-    00 00 00 03 42 6f 62
-                          </pre>
-<pre>
-    00 00 00 07 41 32 35 36 47 43 4d 00 00 00 05 41 
-    6c 69 63 65 00 00 00 03 42 6f 62 00 00 01 00
-                          </pre>
-<p id="rfc.section.B.1.p.3">The resulting one-pass KDF <a href="#NIST.800-56A" class="xref">[NIST.800-56A]</a> parameter values are: </p>
+    86 52 0c ff 0c 69 58 db ff a5 06 0c 08 5e 77 38 </pre>
+<p></p>
+<p></p>
 
 <dl>
-<dt>Ze</dt>
-<dd style="margin-left: 8">This is set to the output of the X448 key agreement between Alice's ephemeral private key and Bob's static public key. In this example, Ze is the following octet sequence (in hexadecimal notation): </dd>
-<dt>Zs</dt>
-<dd style="margin-left: 8">This is set to the output of the X448 key agreement between Alice's static private key and Bob's static public key. In this example, Zs is the following octet sequence (in hexadecimal notation): </dd>
-<dt>Z</dt>
-<dd style="margin-left: 8">This is set to the concatenation of Ze followed by Zs. In this example, Z is the following octet sequence (in hexadecimal notation): </dd>
 <dt>keydatalen</dt>
 <dd style="margin-left: 8">This value is 256, because "A256GCM" uses a 256-bit key.  </dd>
 <dt>AlgorithmID</dt>
-<dd style="margin-left: 8">This is set to the octets representing the 32-bit big-endian value 7 followed by the octets representing the ASCII string "A256GCM". In hexadecimal notation: </dd>
+<dd style="margin-left: 8">This is set to the octets representing the 32-bit big-endian value 7 followed by the octets representing the ASCII string "A256GCM". In hexadecimal notation: 00 00 00 07 41 32 35 36 47 43 4d </dd>
 <dt>PartyUInfo</dt>
-<dd style="margin-left: 8">This is set to the octets representing the 32-bit big-endian value 5 followed by the octets representing the UTF-8 string "Alice". In hexadecimal notation: </dd>
+<dd style="margin-left: 8">This is set to the octets representing the 32-bit big-endian value 5 followed by the octets representing the UTF-8 string "Alice". In hexadecimal notation: 00 00 00 05 41 6c 69 63 65 </dd>
 <dt>PartyVInfo</dt>
-<dd style="margin-left: 8">This is set to the octets representing the 32-bit big-endian value 3 followed by the octets representing the UTF-8 string "Bob". In hexadecimal notation: </dd>
+<dd style="margin-left: 8">This is set to the octets representing the 32-bit big-endian value 3 followed by the octets representing the UTF-8 string "Bob". In hexadecimal notation: 00 00 00 03 42 6f 62 </dd>
 <dt>SuppPubInfo</dt>
 <dd style="margin-left: 8">This is set to the octets representing the 32-bit big endian value 256 - the keydatalen value. In hexadecimal: 00 00 01 00 </dd>
 <dt>SuppPrivInfo</dt>
 <dd style="margin-left: 8">This is set to the empty octet sequence.  </dd>
 </dl>
 
-<p> Concatenating the parameters AlgorithmID through SuppPubInfo results in a FixedInfo value of (in hex): </p>
+<p> </p>
+<p id="rfc.section.B.1.p.14">Concatenating the parameters AlgorithmID through SuppPubInfo results in a FixedInfo value of (in hex): </p>
+<pre>
+    00 00 00 07 41 32 35 36 47 43 4d 00 00 00 05 41 
+    6c 69 63 65 00 00 00 03 42 6f 62 00 00 01 00 </pre>
+<p></p>
+<p id="rfc.section.B.1.p.16">Concatenating the round number 1 (00 00 00 01), Z, and the FixedInfo value results in the KDF round 1 hash input of: </p>
 <pre>
     00 00 00 01 4c b2 b9 11 cd 1c 0a 69 d2 89 4f 39 
     3b 94 34 29 61 02 40 f4 19 fc 09 2e bc 06 eb a2
@@ -932,36 +985,38 @@
     c1 62 84 07 86 52 0c ff 0c 69 58 db ff a5 06 0c
     08 5e 77 38 00 00 00 07 41 32 35 36 47 43 4d 00
     00 00 05 41 6c 69 63 65 00 00 00 03 42 6f 62 00
-    00 01 00
-                          </pre>
-<p id="rfc.section.B.1.p.4">Concatenating the round number 1 (00 00 00 01), Z, and the FixedInfo value results in the KDF round 1 hash input of: </p>
+    00 01 00 </pre>
+<p></p>
+<p id="rfc.section.B.1.p.18">The resulting derived key, which is the full 256-bits of the round 1 hash output is: </p>
 <pre>
     3e 22 44 01 ab cf 8b 1a 93 63 bd 2b 6c 8e 85 c4 
-    e0 c7 b9 8c ad 3b 51 aa 3f 04 a4 9d 0c 29 da 0c
-                          </pre>
-<p id="rfc.section.B.1.p.5">The resulting derived key, which is the full 256-bits of the round 1 hash output is: </p>
+    e0 c7 b9 8c ad 3b 51 aa 3f 04 a4 9d 0c 29 da 0c </pre>
+<p></p>
+<p id="rfc.section.B.1.p.20">Alice then generates a random 96-bit Initialization Vector (IV) for A256GCM.  In hexadecimal format: </p>
 <pre>
-    3b c5 10 62 97 3c 45 8d 5a 6f 2d 8d
-                  </pre>
-<p id="rfc.section.B.1.p.6">Alice then generates a random 96-bit Initialization Vector (IV) for A256GCM.  In hexadecimal format: </p>
+    3b c5 10 62 97 3c 45 8d 5a 6f 2d 8d </pre>
+<p></p>
+<p id="rfc.section.B.1.p.22">Alice uses the derived key and the IV to encrypt and authenticate the following plaintext JWT Claims Set <a href="#RFC7519" class="xref">[RFC7519]</a>, with the octets of the encoded JWE Protected Header as the Additional Authenticated Data.  </p>
 <pre>
-    {"msg":"Hello Mike","aud":"Bob","iss":"Alice"}
-                          </pre>
+    {"msg":"Hello Mike","aud":"Bob","iss":"Alice"} </pre>
+<p></p>
+<p id="rfc.section.B.1.p.24">In hexadecimal notation, the UTF-8 bytes of this plaintext are: </p>
 <pre>
     7b 22 6d 73 67 22 3a 22 48 65 6c 6c 6f 20 4d 69 
     6b 65 22 2c 22 61 75 64 22 3a 22 42 6f 62 22 2c 
-    22 69 73 73 22 3a 22 41 6c 69 63 65 22 7d
-                  </pre>
-<p id="rfc.section.B.1.p.7">Alice uses the derived key and the IV to encrypt and authenticate the following plaintext JWT Claims Set <a href="#RFC7519" class="xref">[RFC7519]</a>, with the octets of the encoded JWE Protected Header as the Additional Authenticated Data.  </p>
+    22 69 73 73 22 3a 22 41 6c 69 63 65 22 7d </pre>
+<p></p>
+<p id="rfc.section.B.1.p.26">The resulting Authentication Tag value is: </p>
 <pre>
-    4b 39 e8 a7 70 ec eb e3 46 f4 af 77 af 22 4f 42
-                          </pre>
+    4b 39 e8 a7 70 ec eb e3 46 f4 af 77 af 22 4f 42 </pre>
+<p></p>
+<p id="rfc.section.B.1.p.28">The JWE Ciphertext is: </p>
 <pre>
     b5 bd c4 83 44 54 be 02 04 f6 b5 d5 cd 9c 0d f6
     95 57 ab d9 4b ba d4 4f f4 70 0e 57 55 a2 c0 fc 
-    21 ca 63 56 38 93 7b fb 06 3e 60 f4 a4 cb
-                  </pre>
-<p id="rfc.section.B.1.p.8">The resulting Authentication Tag value is: </p>
+    21 ca 63 56 38 93 7b fb 06 3e 60 f4 a4 cb </pre>
+<p></p>
+<p id="rfc.section.B.1.p.30">Alice assembles the complete message in JWE Compact Serialization format and sends it to Bob (with line breaks added for display purposes only): </p>
 <pre>
     eyJ0eXAiOiJKV1QiLCJlcGsiOnsia3R5IjoiT0tQIiwiY3J
     2IjoiWDQ0OCIsIngiOiI2RFJ4U2VtYUdWeDFpVkVQUnlPQW
@@ -971,12 +1026,13 @@
     iZW5jIjoiQTI1NkdDTSIsImFsZyI6IkVDREgtMVBVIn0..O
     8UQYpc8RY1aby2N.tb3Eg0RUvgIE9rXVzZwN9pVXq9lLutR
     P9HAOV1WiwPwhymNWOJN7-wY-YPSkyw.Sznop3Ds6-NG9K9
-    3ryJPQg
-                  </pre>
-<p id="rfc.section.B.1.p.9">Alice assembles the complete message in JWE Compact Serialization format and sends it to Bob (with line breaks added for display purposes only): </p>
+    3ryJPQg </pre>
+<p></p>
+<p id="rfc.section.B.1.p.32">The message is 383 octets in size.  </p>
 <h1 id="rfc.appendix.B.2">
 <a href="#rfc.appendix.B.2">B.2.</a> Response message from Bob to Alice</h1>
 <p id="rfc.section.B.2.p.1">Bob receives the message from Alice and decrypts it, using Alice's (known) static public key to authenticate that the message did indeed come from Alice. Bob wishes to establish an interactive secure channel with Alice, so replies to her message using the ephemeral key from her initial message as Alice's public key.  </p>
+<p id="rfc.section.B.2.p.2">Bob generates a fresh ephemeral key-pair of his own. In this example, Bob's ephemeral key-pair (in JWK format) is as follows, including the private key parts (with linebreaks added for display purposes only): </p>
 <pre>
     {"kty":"OKP", 
      "kid":"bob-ephemeral", 
@@ -984,9 +1040,9 @@
      "x":"_a4lG0EVO62pyVyuGjCIzHYII7vjEBqf02CcNMCHUjWvRMKbkZB-XQ0uzhByXl
      jx0bNgpAvmf84",
      "d":"bNy3py2jvaYOnnzkxV3nOYazDEWTeEOEtTGK7eH-Cjp_m4uCOS-AYqmcUDJCyG
-     uFj340p3ld0NA"}
-                  </pre>
-<p id="rfc.section.B.2.p.2">Bob generates a fresh ephemeral key-pair of his own. In this example, Bob's ephemeral key-pair (in JWK format) is as follows, including the private key parts (with linebreaks added for display purposes only): </p>
+     uFj340p3ld0NA"} </pre>
+<p></p>
+<p id="rfc.section.B.2.p.4">Bob generates the following JWE Protected Header for his reply to Alice (with line breaks and whitespace added for display only): </p>
 <pre>
     {"typ":"JWT",
      "epk":{
@@ -998,9 +1054,9 @@
      "apu":"Qm9i",
      "kid":"alice-ephemeral",
      "enc":"A256GCM",
-     "alg":"ECDH-1PU"}
-    </pre>
-<p id="rfc.section.B.2.p.3">Bob generates the following JWE Protected Header for his reply to Alice (with line breaks and whitespace added for display only): </p>
+     "alg":"ECDH-1PU"} </pre>
+<p></p>
+<p id="rfc.section.B.2.p.6">After removing all whitespace, the octets of ASCII(BASE64URL(UTF8(JWE Protected Header))) are as follows (in hexadecimal notation): </p>
 <pre>
     65 79 4a 30 65 58 41 69 4f 69 4a 4b 56 31 51 69 
     4c 43 4a 6c 63 47 73 69 4f 6e 73 69 61 33 52 35 
@@ -1019,21 +1075,44 @@
     5a 53 31 6c 63 47 68 6c 62 57 56 79 59 57 77 69 
     4c 43 4a 6c 62 6d 4d 69 4f 69 4a 42 4d 6a 55 32 
     52 30 4e 4e 49 69 77 69 59 57 78 6e 49 6a 6f 69 
-    52 55 4e 45 53 43 30 78 55 46 55 69 66 51 3d 3d 
-    </pre>
-<p id="rfc.section.B.2.p.4">After removing all whitespace, the octets of ASCII(BASE64URL(UTF8(JWE Protected Header))) are as follows (in hexadecimal notation): </p>
+    52 55 4e 45 53 43 30 78 55 46 55 69 66 51 3d 3d </pre>
+<p></p>
+<p id="rfc.section.B.2.p.8">The resulting KDF parameter values are: </p>
+
+<dl>
+<dt>Ze</dt>
+<dd style="margin-left: 8">This is set to the output of the X448 key agreement between Bob's ephemeral private key and Alice's ephemeral public key (from the first message). Note that this is an ephemeral-ephemeral key agreement. In hexadecimal notation: </dd>
+</dl>
+
+<p> </p>
 <pre>
     66 83 28 4e 27 bf 2c e9 02 e1 e1 5d 51 de 25 d7
     86 21 c7 ee 68 21 0e 55 3f c9 3e 9f cd c3 7f f1
     92 b9 c5 35 c2 a2 bc ee bd 03 48 79 82 f9 fb f9 
-    5b d2 c6 88 c8 5c 05 71
-                          </pre>
+    5b d2 c6 88 c8 5c 05 71 </pre>
+<p></p>
+<p></p>
+
+<dl>
+<dt>Zs</dt>
+<dd style="margin-left: 8">This is set to the output of the X448 key agreement between Bob's static private key and Alice's ephemeral public key from the first message. In hexadecimal notation: </dd>
+</dl>
+
+<p> </p>
 <pre>
     4c b2 b9 11 cd 1c 0a 69 d2 89 4f 39 3b 94 34 29
     61 02 40 f4 19 fc 09 2e bc 06 eb a2 c8 27 17 33
     d2 7d ea 64 c8 b6 4d 66 de c1 db ce 6d de a1 b3
-    a5 d3 12 c7 9a 0c e1 47
-                          </pre>
+    a5 d3 12 c7 9a 0c e1 47 </pre>
+<p></p>
+<p></p>
+
+<dl>
+<dt>Z</dt>
+<dd style="margin-left: 8">Z is the concatenation of Ze and Zs: </dd>
+</dl>
+
+<p> </p>
 <pre>
     66 83 28 4e 27 bf 2c e9 02 e1 e1 5d 51 de 25 d7
     86 21 c7 ee 68 21 0e 55 3f c9 3e 9f cd c3 7f f1
@@ -1041,45 +1120,32 @@
     5b d2 c6 88 c8 5c 05 71 4c b2 b9 11 cd 1c 0a 69
     d2 89 4f 39 3b 94 34 29 61 02 40 f4 19 fc 09 2e
     bc 06 eb a2 c8 27 17 33 d2 7d ea 64 c8 b6 4d 66
-    de c1 db ce 6d de a1 b3 a5 d3 12 c7 9a 0c e1 47
-                          </pre>
-<pre>
-    00 00 00 07 41 32 35 36 47 43 4d
-                          </pre>
-<pre>
-    00 00 00 03 42 6f 62
-                          </pre>
-<pre>
-    00 00 00 05 41 6c 69 63 65
-                          </pre>
-<pre>
-    00 00 00 07 41 32 35 36 47 43 4d 00 00 00 03 42
-    6f 62 00 00 00 05 41 6c 69 63 65 00 00 01 00
-                          </pre>
-<p id="rfc.section.B.2.p.5">The resulting KDF parameter values are: </p>
+    de c1 db ce 6d de a1 b3 a5 d3 12 c7 9a 0c e1 47 </pre>
+<p></p>
+<p></p>
 
 <dl>
-<dt>Ze</dt>
-<dd style="margin-left: 8">This is set to the output of the X448 key agreement between Bob's ephemeral private key and Alice's ephemeral public key (from the first message). Note that this is an ephemeral-ephemeral key agreement. In hexadecimal notation: </dd>
-<dt>Zs</dt>
-<dd style="margin-left: 8">This is set to the output of the X448 key agreement between Bob's static private key and Alice's ephemeral public key from the first message. In hexadecimal notation: </dd>
-<dt>Z</dt>
-<dd style="margin-left: 8">Z is the concatenation of Ze and Zs: </dd>
 <dt>keydatalen</dt>
 <dd style="margin-left: 8">This is the value 256.  </dd>
 <dt>AlgorithmID</dt>
-<dd style="margin-left: 8">This is set to the octets representing the 32-bit big- endian value 7 followed by the octets representing the ASCII string "A256GCM".  In hexadecimal notation: </dd>
+<dd style="margin-left: 8">This is set to the octets representing the 32-bit big- endian value 7 followed by the octets representing the ASCII string "A256GCM".  In hexadecimal notation: 00 00 00 07 41 32 35 36 47 43 4d </dd>
 <dt>PartyUInfo</dt>
-<dd style="margin-left: 8">This is set to the octets representing the 32-bit big- endian value 3 followed by the octets representing the UTF-8 string "Bob".  In hexadecimal notation: </dd>
+<dd style="margin-left: 8">This is set to the octets representing the 32-bit big- endian value 3 followed by the octets representing the UTF-8 string "Bob".  In hexadecimal notation: 00 00 00 03 42 6f 62 </dd>
 <dt>PartyVInfo</dt>
-<dd style="margin-left: 8">Bob echoes back Alice's PartyUInfo as the new PartyVInfo: </dd>
+<dd style="margin-left: 8">Bob echoes back Alice's PartyUInfo as the new PartyVInfo: 00 00 00 05 41 6c 69 63 65 </dd>
 <dt>SuppPubInfo</dt>
 <dd style="margin-left: 8">This is set to the octets representing the 32-bit big endian value 256 - the keydatalen value.  In hexadecimal: 00 00 01 00 </dd>
 <dt>SuppPrivInfo</dt>
 <dd style="margin-left: 8">This is set to the empty octet sequence.  </dd>
 </dl>
 
-<p> Concatenating the parameters AlgorithmID through SuppPubInfo results in a FixedInfo value of (in hex): </p>
+<p> </p>
+<p id="rfc.section.B.2.p.15">Concatenating the parameters AlgorithmID through SuppPubInfo results in a FixedInfo value of (in hex): </p>
+<pre>
+    00 00 00 07 41 32 35 36 47 43 4d 00 00 00 03 42
+    6f 62 00 00 00 05 41 6c 69 63 65 00 00 01 00 </pre>
+<p></p>
+<p id="rfc.section.B.2.p.17">Concatenating the round number 1 (00 00 00 01), Z, and the FixedInfo value results in the KDF round 1 hash input of: </p>
 <pre>
     00 00 00 01 66 83 28 4e 27 bf 2c e9 02 e1 e1 5d
     51 de 25 d7 86 21 c7 ee 68 21 0e 55 3f c9 3e 9f
@@ -1090,38 +1156,38 @@
     c8 b6 4d 66 de c1 db ce 6d de a1 b3 a5 d3 12 c7
     9a 0c e1 47 00 00 00 07 41 32 35 36 47 43 4d 00
     00 00 03 42 6f 62 00 00 00 05 41 6c 69 63 65 00
-    00 01 00
-        </pre>
-<p id="rfc.section.B.2.p.6">Concatenating the round number 1 (00 00 00 01), Z, and the FixedInfo value results in the KDF round 1 hash input of: </p>
+    00 01 00 </pre>
+<p></p>
+<p id="rfc.section.B.2.p.19">The resulting derived key, which is the full 256-bits of the round 1 hash output is: </p>
 <pre>
     7c 22 e5 61 29 89 74 7f 4e d3 b1 94 30 e1 7d 3c 
-    98 14 5c 77 15 5c 71 6a 9d 5d f8 5b ea dd 79 02
-                </pre>
-<p id="rfc.section.B.2.p.7">The resulting derived key, which is the full 256-bits of the round 1 hash output is: </p>
+    98 14 5c 77 15 5c 71 6a 9d 5d f8 5b ea dd 79 02 </pre>
+<p></p>
+<p id="rfc.section.B.2.p.21">Bob then generates a random 96-bit IV for A256GCM. In hexadecimal format: </p>
 <pre>
-    cd 9f b1 e1 48 cc d8 44 2e 5a a7 49
-                </pre>
-<p id="rfc.section.B.2.p.8">Bob then generates a random 96-bit IV for A256GCM. In hexadecimal format: </p>
+    cd 9f b1 e1 48 cc d8 44 2e 5a a7 49 </pre>
+<p></p>
+<p id="rfc.section.B.2.p.23">Bob uses the derived key and the IV to encrypt and authenticate the following plaintext JWT Claims Set, with the octets of the encoded JWE Protected Header as the Additional Authenticated Data.  </p>
 <pre>
-    {"msg":"Hello Joe","aud":"Alice","iss":"Bob"}
-                </pre>
-<p id="rfc.section.B.2.p.9">Bob uses the derived key and the IV to encrypt and authenticate the following plaintext JWT Claims Set, with the octets of the encoded JWE Protected Header as the Additional Authenticated Data.  </p>
+    {"msg":"Hello Joe","aud":"Alice","iss":"Bob"} </pre>
+<p></p>
+<p id="rfc.section.B.2.p.25">In hexadecimal notation, the UTF-8 bytes of this plaintext are: </p>
 <pre>
     7b 22 6d 73 67 22 3a 22 48 65 6c 6c 6f 20 4a 6f 
     65 22 2c 22 61 75 64 22 3a 22 41 6c 69 63 65 22 
-    2c 22 69 73 73 22 3a 22 42 6f 62 22 7d
-                </pre>
-<p id="rfc.section.B.2.p.10">In hexadecimal notation, the UTF-8 bytes of this plaintext are: </p>
+    2c 22 69 73 73 22 3a 22 42 6f 62 22 7d </pre>
+<p></p>
+<p id="rfc.section.B.2.p.27">The resulting Authentication Tag value is: </p>
 <pre>
-    89 4c a4 f1 a7 7a d0 7b f0 d4 7c da 65 8b d3 95
-                </pre>
-<p id="rfc.section.B.2.p.11">The resulting Authentication Tag value is: </p>
+    89 4c a4 f1 a7 7a d0 7b f0 d4 7c da 65 8b d3 95 </pre>
+<p></p>
+<p id="rfc.section.B.2.p.29">The JWE Ciphertext is: </p>
 <pre>
     02 0d 16 b0 17 d4 8e 04 d2 f4 04 17 09 17 6a 6c
     15 57 39 57 c8 ad 16 0c b4 b8 f1 c1 50 18 7d a1
-    ef cc b2 d1 da 6b 92 b0 32 bb a1 8b 64
-                </pre>
-<p id="rfc.section.B.2.p.12">The JWE Ciphertext is: </p>
+    ef cc b2 d1 da 6b 92 b0 32 bb a1 8b 64 </pre>
+<p></p>
+<p id="rfc.section.B.2.p.31">Bob assembles the complete message in JWE Compact Serialization format and sends it to Alice (with line breaks added for display purposes only): </p>
 <pre>
     eyJ0eXAiOiJKV1QiLCJlcGsiOnsia3R5IjoiT0tQIiwiY3J
     2IjoiWDQ0OCIsIngiOiJfYTRsRzBFVk82MnB5Vnl1R2pDSX
@@ -1131,9 +1197,18 @@
     yYWwiLCJlbmMiOiJBMjU2R0NNIiwiYWxnIjoiRUNESC0xUF
     UifQ..zZ-x4UjM2EQuWqdJ.Ag0WsBfUjgTS9AQXCRdqbBVX
     OVfIrRYMtLjxwVAYfaHvzLLR2muSsDK7oYtk.iUyk8ad60H
-    vw1HzaZYvTlQ
-                        </pre>
-<p id="rfc.section.B.2.p.13">Bob assembles the complete message in JWE Compact Serialization format and sends it to Alice (with line breaks added for display purposes only): </p>
+    vw1HzaZYvTlQ </pre>
+<p></p>
+<h1 id="rfc.appendix.C">
+<a href="#rfc.appendix.C">Appendix C.</a> Document History</h1>
+<p></p>
+
+<dl>
+<dt>-01</dt>
+<dd style="margin-left: 8">Added examples in <a href="#example" class="xref">Appendix A</a> and <a href="#handshake" class="xref">Appendix B</a>.  Added "skid" Header Parameter and registration. Fleshed out Security Considerations.  </dd>
+</dl>
+
+<p> </p>
 <h1 id="rfc.authors"><a href="#rfc.authors">Author's Address</a></h1>
 <div class="avoidbreak">
   <address class="vcard">
