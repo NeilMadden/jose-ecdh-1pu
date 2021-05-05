@@ -1,11 +1,12 @@
-VERSION=03
+VERSION=04
 BASENAME=draft-madden-jose-ecdh-1pu-$(VERSION)
 
 # Use 'pip install xml2rfc'
 
 all: jose-ecdh-1pu.xml 
 	cp jose-ecdh-1pu.xml $(BASENAME).xml
-	xml2rfc $(BASENAME).xml --text --html --basename $(BASENAME)
+	mkdir -p $(BASENAME)
+	xml2rfc $(BASENAME).xml -b $(BASENAME) --text --html
 
 .PHONY: all
 
