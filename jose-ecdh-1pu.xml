@@ -6,7 +6,7 @@
 <?rfc sortrefs="yes"?>
 <?rfc compact="yes"?>
 <?rfc subcompact="no"?>
-<rfc xmlns:xi="http://www.w3.org/2001/XInclude" category="std" docName="draft-madden-jose-ecdh-1pu-05" ipr="trust200902" obsoletes="" updates="" submissionType="IETF" xml:lang="en" tocInclude="true" symRefs="true" sortRefs="true" version="3">
+<rfc xmlns:xi="http://www.w3.org/2001/XInclude" category="std" docName="draft-madden-jose-ecdh-1pu-05" ipr="trust200902" obsoletes="" updates="" submissionType="IETF" xml:lang="en" tocInclude="true" symRefs="true" sortRefs="true" version="3" consensus="true">
   <!-- xml2rfc v2v3 conversion 3.7.0 -->
   <front>
     <title abbrev="JOSE ECDH-1PU">Public Key Authenticated Encryption for JOSE: ECDH-1PU</title>
@@ -886,18 +886,20 @@
         This value is:
         </t>
         <artwork name="" type="" align="left" alt=""><![CDATA[
-    [123, 34, 97, 108, 103, 34, 58, 34, 69, 67, 68, 72, 45, 49, 80, 85, 
-    43, 65, 49, 50, 56, 75, 87, 34, 44, 34, 101, 110, 99, 34, 58, 34, 
-    65, 50, 53, 54, 67, 66, 67, 45, 72, 83, 53, 49, 50, 34, 44, 34, 97, 
-    112, 117, 34, 58, 34, 81, 87, 120, 112, 89, 50, 85, 34, 44, 34, 97, 
-    112, 118, 34, 58, 34, 81, 109, 57, 105, 73, 71, 70, 117, 90, 67, 66, 
-    68, 97, 71, 70, 121, 98, 71, 108, 108, 34, 44, 34, 101, 112, 107, 
-    34, 58, 123, 34, 107, 116, 121, 34, 58, 34, 79, 75, 80, 34, 44, 34,
-    99, 114, 118, 34, 58, 34, 88, 50, 53, 53, 49, 57, 34, 44, 34, 120, 
-    34, 58, 34, 107, 57, 111, 102, 95, 99, 112, 65, 97, 106, 121, 48, 
-    112, 111, 87, 53, 103, 97, 105, 120, 88, 71, 115, 57, 110, 72, 107, 
-    119, 103, 49, 65, 70, 113, 85, 65, 70, 97, 51, 57, 100, 121, 66, 99, 
-    34, 125, 125]
+    [123, 34, 97, 108, 103, 34, 58, 34, 69, 67, 68, 72, 45, 49, 
+    80, 85, 43, 65, 49, 50, 56, 75, 87, 34, 44, 34, 101, 110, 
+    99, 34, 58, 34, 65, 50, 53, 54, 67, 66, 67, 45, 72, 83, 
+    53, 49, 50, 34, 44, 34, 97, 112, 117, 34, 58, 34, 81, 87, 
+    120, 112, 89, 50, 85, 34, 44, 34, 97, 112, 118, 34, 58, 
+    34, 81, 109, 57, 105, 73, 71, 70, 117, 90, 67, 66, 68, 
+    97, 71, 70, 121, 98, 71, 108, 108, 34, 44, 34, 101, 112, 
+    107, 34, 58, 123, 34, 107, 116, 121, 34, 58, 34, 79, 75, 
+    80, 34, 44, 34, 99, 114, 118, 34, 58, 34, 88, 50, 53, 53, 
+    49, 57, 34, 44, 34, 120, 34, 58, 34, 107, 57, 111, 102, 
+    95, 99, 112, 65, 97, 106, 121, 48, 112, 111, 87, 53, 103, 
+    97, 105, 120, 88, 71, 115, 57, 110, 72, 107, 119, 103, 
+    49, 65, 70, 113, 85, 65, 70, 97, 51, 57, 100, 121, 66, 
+    99, 34, 125, 125]
 ]]></artwork>
       </section>
       <section numbered="true" toc="default">
@@ -928,8 +930,8 @@
         string "Three is a magic number." (without the quotes). The octets of the plaintext are:
         </t>
         <artwork name="" type="" align="left" alt=""><![CDATA[
-    [84, 104, 114, 101, 101, 32, 105, 115, 32, 97, 32, 109, 97, 103, 105, 99, 
-    32, 110, 117, 109, 98, 101, 114, 46]
+    [84, 104, 114, 101, 101, 32, 105, 115, 32, 97, 32, 109, 97, 
+    103, 105, 99, 32, 110, 117, 109, 98, 101, 114, 46]
 ]]></artwork>
       </section>
       <section numbered="true" toc="default">
@@ -1090,8 +1092,8 @@
         (in base64url encoding with line breaks for display purposes only):
         </t>
         <artwork name="" type="" align="left" alt=""><![CDATA[
-            pOMVA9_PtoRe7xXW1139NzzN1UhiFoio8lGto9cf0t8PyU-sjNXH8-LIRLycq8CHJQ
-            bDwvQeU1cSl55cQ0hGezJu2N9IY0QN
+            pOMVA9_PtoRe7xXW1139NzzN1UhiFoio8lGto9cf0t8PyU-s
+            jNXH8-LIRLycq8CHJQbDwvQeU1cSl55cQ0hGezJu2N9IY0QN
         ]]></artwork>
       </section>
       <section numbered="true" toc="default">
@@ -1165,8 +1167,8 @@
         (in base64url encoding with line breaks for display purposes only):
         </t>
         <artwork name="" type="" align="left" alt=""><![CDATA[
-            56GVudgRLIMEElQ7DpXsijJVRSWUSDNdbWkdV3g0GUNq6hcT_GkxwnxlPIWrTXCqRp
-            VKQC8fe4z3PQ2YH2afvjQ28aiCTWFE
+            56GVudgRLIMEElQ7DpXsijJVRSWUSDNdbWkdV3g0GUNq6hcT
+            _GkxwnxlPIWrTXCqRpVKQC8fe4z3PQ2YH2afvjQ28aiCTWFE
             ]]></artwork>
       </section>
       <section numbered="true" toc="default">
@@ -1178,23 +1180,24 @@
         <artwork name="" type="" align="left" alt=""><![CDATA[
     {
      "protected":
-      "eyJhbGciOiJFQ0RILTFQVStBMTI4S1ciLCJlbmMiOiJBMjU2Q0JDLUhTNTEyIiwiYXB1Ijoi
-       UVd4cFkyVSIsImFwdiI6IlFtOWlJR0Z1WkNCRGFHRnliR2xsIiwiZXBrIjp7Imt0eSI6Ik9L
-       UCIsImNydiI6IlgyNTUxOSIsIngiOiJrOW9mX2NwQWFqeTBwb1c1Z2FpeFhHczluSGt3ZzFB
-       RnFVQUZhMzlkeUJjIn19",
+      "eyJhbGciOiJFQ0RILTFQVStBMTI4S1ciLCJlbmMiOiJBMjU2Q0JDLUh
+       TNTEyIiwiYXB1Ijoi UVd4cFkyVSIsImFwdiI6IlFtOWlJR0Z1WkNCR
+       GFHRnliR2xsIiwiZXBrIjp7Imt0eSI6Ik9LUCIsImNydiI6IlgyNTUx
+       OSIsIngiOiJrOW9mX2NwQWFqeTBwb1c1Z2FpeFhHczluSGt3ZzFBRnF
+       VQUZhMzlkeUJjIn19",
      "unprotected":
       {"jku":"https://alice.example.com/keys.jwks"},
      "recipients":[
       {"header":
         {"kid":"bob-key-2"},
        "encrypted_key":
-        "pOMVA9_PtoRe7xXW1139NzzN1UhiFoio8lGto9cf0t8PyU-sjNXH8-LIRLycq8CHJQbDwvQ
-        eU1cSl55cQ0hGezJu2N9IY0QN"},
+        "pOMVA9_PtoRe7xXW1139NzzN1UhiFoio8lGto9cf0t8PyU-sjNXH8
+        -LIRLycq8CHJQbDwvQeU1cSl55cQ0hGezJu2N9IY0QN"},
       {"header":
         {"kid":"2021-05-06"},
        "encrypted_key":
-        "56GVudgRLIMEElQ7DpXsijJVRSWUSDNdbWkdV3g0GUNq6hcT_GkxwnxlPIWrTXCqRpVKQC8
-         fe4z3PQ2YH2afvjQ28aiCTWFE"}],
+        "56GVudgRLIMEElQ7DpXsijJVRSWUSDNdbWkdV3g0GUNq6hcT_Gkxw
+         nxlPIWrTXCqRpVKQC8fe4z3PQ2YH2afvjQ28aiCTWFE"}],
      "iv":
       "AAECAwQFBgcICQoLDA0ODw",
      "ciphertext":
