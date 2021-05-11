@@ -1,71 +1,57 @@
-<?xml version="1.0"?>
-<!DOCTYPE rfc PUBLIC "-//IETF//DTD RFC 2629//EN"
-"http://xml2rfc.tools.ietf.org/authoring/rfc2629.dtd" [
-<!ENTITY RFC7515 PUBLIC '' 'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.7515.xml'>
-<!ENTITY RFC7516 PUBLIC '' 'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.7516.xml'>
-<!ENTITY RFC7517 PUBLIC '' 'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.7517.xml'>
-<!ENTITY RFC7518 PUBLIC '' 'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.7518.xml'>
-<!ENTITY RFC7748 PUBLIC '' 'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.7748.xml'>
-<!ENTITY RFC8037 PUBLIC '' 'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8037.xml'>
-<!ENTITY RFC8174 PUBLIC '' 'http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8174.xml'>
-]>
-
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE rfc SYSTEM "rfc2629-xhtml.ent">
 <?rfc strict="yes"?>
 <?rfc toc="yes"?>
 <?rfc symrefs="yes"?>
 <?rfc sortrefs="yes"?>
 <?rfc compact="yes"?>
 <?rfc subcompact="no"?>
-<rfc category="std" docName="draft-madden-jose-ecdh-1pu-04" ipr="trust200902">
-    
-    <front>
-        <title abbrev="JOSE ECDH-1PU">Public Key Authenticated Encryption for JOSE: ECDH-1PU</title>
-
-        <author initials="N.E." surname="Madden" fullname="Neil Madden">
-            <organization>ForgeRock</organization>
-            <address>
-                <postal>
-                    <street>Broad Quay House</street>
-                    <street>Prince Street</street>
-                    <city>Bristol</city>
-                    <code>BS1 4DJ</code>
-                    <country>United Kingdom</country>
-                </postal>
-                <email>neil.madden@forgerock.com</email>
-            </address>
-        </author>
-
-        <date day="6" month="May" year="2021"/>
-
-        <area>Security</area>
-
-        <keyword>Internet-Draft</keyword>
-        <keyword>JSON Object Signing and Encryption</keyword>
-        <keyword>JOSE</keyword>
-        <keyword>JSON Web Encryption</keyword>
-        <keyword>JWE</keyword>
-        <keyword>JSON Web Algorithms</keyword>
-        <keyword>JWA</keyword>
-        <keyword>Elliptic Curve Diffie-Hellman Key Agreement</keyword>
-        <keyword>ECDH</keyword>
-        <keyword>ECDH-1PU</keyword>
-
-        <abstract>
-            <t>
+<rfc xmlns:xi="http://www.w3.org/2001/XInclude" category="std" docName="draft-madden-jose-ecdh-1pu-05" ipr="trust200902" obsoletes="" updates="" submissionType="IETF" xml:lang="en" tocInclude="true" symRefs="true" sortRefs="true" version="3">
+  <!-- xml2rfc v2v3 conversion 3.7.0 -->
+  <front>
+    <title abbrev="JOSE ECDH-1PU">Public Key Authenticated Encryption for JOSE: ECDH-1PU</title>
+    <seriesInfo name="Internet-Draft" value="draft-madden-jose-ecdh-1pu-05"/>
+    <author initials="N.E." surname="Madden" fullname="Neil Madden">
+      <organization>ForgeRock</organization>
+      <address>
+        <postal>
+          <street>Broad Quay House</street>
+          <street>Prince Street</street>
+          <city>Bristol</city>
+          <code>BS1 4DJ</code>
+          <country>United Kingdom</country>
+        </postal>
+        <email>neil.madden@forgerock.com</email>
+      </address>
+    </author>
+    <date day="6" month="May" year="2021"/>
+    <area>Security</area>
+    <keyword>Internet-Draft</keyword>
+    <keyword>JSON Object Signing and Encryption</keyword>
+    <keyword>JOSE</keyword>
+    <keyword>JSON Web Encryption</keyword>
+    <keyword>JWE</keyword>
+    <keyword>JSON Web Algorithms</keyword>
+    <keyword>JWA</keyword>
+    <keyword>Elliptic Curve Diffie-Hellman Key Agreement</keyword>
+    <keyword>ECDH</keyword>
+    <keyword>ECDH-1PU</keyword>
+    <abstract>
+      <t>
                 This document describes the ECDH-1PU public key authenticated encryption algorithm
                 for JWE. The algorithm is similar to the existing ECDH-ES encryption algorithm, but
                 adds an additional ECDH key agreement between static keys of the sender and recipient.
                 This additional step allows the recipient to be assured of sender authenticity without
                 requiring a nested signed-then-encrypted message structure. 
-            </t>
-        </abstract>
-    </front>
-
-    <middle>
-        <section anchor="intro" title="Introduction">
-            <t>
+      </t>
+    </abstract>
+  </front>
+  <middle>
+    <section anchor="intro" numbered="true" toc="default">
+      <name>Introduction</name>
+      <t>
                 JSON Object Signing and Encryption (JOSE) defines a number of encryption (JWE) 
-                <xref target="RFC7516"/> and digital signature (JWS) <xref target="RFC7515"/> 
+                <xref target="RFC7516" format="default"/> and digital signature (JWS) <xref target="RFC7515" format="default"/> 
                 algorithms.  When symmetric cryptography is used, JWE provides authenticated
                 encryption that ensures both confidentiality and sender authentication. However,
                 for public key cryptography the existing JWE encryption algorithms provide only
@@ -75,172 +61,179 @@
                 alternative encryption algorithm called ECDH-1PU that provides public key
                 authenticated encryption, allowing the benefits of authenticated encryption to be
                 enjoyed for public key JWE as it currently is for symmetric cryptography.
-            </t>
-
-            <t>
+      </t>
+      <t>
                 ECDH-1PU is based on the One-Pass Unified Model for Elliptic Curve Diffie-Hellman
-                key agreement described in <xref target="NIST.800-56A"/>. 
-            </t>
-
-            <t>
+                key agreement described in <xref target="NIST.800-56A" format="default"/>. 
+      </t>
+      <t>
                 The advantages of public key authenticated encryption with ECDH-1PU compared to
                 using nested signed-then-encrypted documents include the following:
-                <list style="symbols">
-                    <t>
+      </t>
+      <ul spacing="normal">
+        <li>
                         The resulting message size is more compact as an additional layer of headers
                         and base64url-encoding is avoided. A 500-byte payload when encrypted and
                         authenticated with ECDH-1PU (with P-256 keys and "A256GCM" Content Encryption
                         Method) results in a 1087-byte JWE in Compact Encoding. An equivalent nested 
                         signed-then-encrypted JOSE message using the same keys and encryption method 
                         is 1489 bytes (37% larger).
-                    </t>
-                    <t>
+                    </li>
+        <li>
                         The same primitives are used for both confidentiality and authenticity,
                         providing savings in code size for constrained environments.
-                    </t>
-                    <t>
+                    </li>
+        <li>
                         The generic composition of signatures and public key encryption involves
-                        a number of subtle details that are essential to security <xref target="PKAE"/>.
+                        a number of subtle details that are essential to security <xref target="PKAE" format="default"/>.
                         Providing a dedicated algorithm for public key authenticated encryption
                         reduces complexity for users of JOSE libraries.
-                    </t>
-                    <t>
+                    </li>
+        <li>
                         ECDH-1PU provides only authenticity and not the stronger security properties of
                         non-repudiation or third-party verifiability. This can be an advantage in
                         applications where privacy, anonymity, or plausible deniability are goals. 
-                    </t>
-                </list>
-            </t>
-
-            <section title="Requirements Terminology">
-                <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", 
+                    </li>
+      </ul>
+      <section numbered="true" toc="default">
+        <name>Requirements Terminology</name>
+        <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", 
                     "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", 
                     and "OPTIONAL" in this document are to be interpreted as described 
-                    in BCP 14 <xref target="RFC8174"/> when, and only when, they appear
+                    in BCP 14 <xref target="RFC8174" format="default"/> when, and only when, they appear
                     in all capitals, as shown here.</t>
-            </section>
-
-        </section>
-
-        <section anchor="ecdh-1pu" 
-            title="Key Agreement with Elliptic Curve Diffie-Hellman One-Pass Unified Model (ECDH-1PU)">
-            <t>
+      </section>
+    </section>
+    <section anchor="ecdh-1pu" numbered="true" toc="default">
+      <name>Key Agreement with Elliptic Curve Diffie-Hellman One-Pass Unified Model (ECDH-1PU)</name>
+      <t>
                 This section defines the specifics of key agreement with Elliptic Curve Diffie-Hellman
                 One-Pass Unified Model, in combination with the one-step KDF, as defined in
-                Section 5.8.2.1 of <xref target="NIST.800-56A"/> using the Concatenation Format of
+                Section 5.8.2.1 of <xref target="NIST.800-56A" format="default"/> using the Concatenation Format of
                 Section 5.8.2.1.1. This is identical to the ConcatKDF function used by the existing
-                JWE ECDH-ES algorithm defined in Section 4.6 of <xref target="RFC7518"/>. As for ECDH-ES,
+                JWE ECDH-ES algorithm defined in Section 4.6 of <xref target="RFC7518" format="default"/>. As for ECDH-ES,
                 the key agreement result can be used in one of two ways:
-                <list style="numbers">
-                    <t>directly as the Content Encryption Key (CEK) for the "enc" algorithm, in the
-                        Direct Key Agreement mode, or</t>
-                    <t>as a symmetric key used to wrap the CEK with the "A128KW", "A192KW", or "A256KW"
-                        algorithms, in the Key Agreement with Key Wrapping mode.</t>
-                </list>
-            </t>
-            <t>
+      </t>
+      <ol spacing="normal" type="1"><li>directly as the Content Encryption Key (CEK) for the "enc" algorithm, in the
+                        Direct Key Agreement mode, or</li>
+        <li>as a symmetric key used to wrap the CEK with the "A128KW", "A192KW", or "A256KW"
+                        algorithms, in the Key Agreement with Key Wrapping mode.</li>
+      </ol>
+      <t>
                 A fresh ephemeral public key value MUST be generated for each message. When encrypting
                 the message to multiple recipients using ECDH-1PU, the same ephemeral keys MAY be reused
-                for multiple recipients <xref target="MRES"/>.
-            </t>
-            <t>
+                for multiple recipients <xref target="MRES" format="default"/>.
+      </t>
+      <t>
                 In Direct Key Agreement mode, the output of the KDF MUST be a key of the same length
                 as that used by the "enc" algorithm. In this case, the empty octet sequence is used
                 as the JWE Encrypted Key value. The "alg" (algorithm) Header Parameter value "ECDH-1PU"
                 is used in Direct Key Agreement mode.
-            </t>
-            <t>
+      </t>
+      <t>
                 In Key Agreement with Key Wrapping mode, the output of the KDF MUST be a key of the length
                 needed for the specified key wrapping algorithm. In this case, the JWE Encrypted Key is
                 the CEK wrapped with the agreed-upon key.
-            </t>
-            <t>
+      </t>
+      <t>
                 The following "alg" (algorithm) Header Parameter values are used to indicate the JWE
                 Encrypted Key is the result of encrypting the CEK using the result of the key agreement
                 algorithm as the key encryption key for the corresponding key wrapping algorithm:
-            </t>
-            <texttable>
-                <ttcol align="left" width="13%">"alg" Param Value</ttcol>
-                <ttcol align="left">Key Management Algorithm</ttcol>
-
-                <c>ECDH-1PU+A128KW</c>
-                <c>ECDH-1PU using one-pass KDF and CEK wrapped with "A128KW"</c>
-
-                <c>ECDH-1PU+A192KW</c>
-                <c>ECDH-1PU using one-pass KDF and CEK wrapped with "A192KW"</c>
-
-                <c>ECDH-1PU+A256KW</c>
-                <c>ECDH-1PU using one-pass KDF and CEK wrapped with "A256KW"</c>
-            </texttable>
-
-            <section title="Special Considerations for Key Agreement with Key Wrapping mode">
-                <t>
+      </t>
+      <table align="center">
+        <thead>
+          <tr>
+            <th align="left">"alg" Param Value</th>
+            <th align="left">Key Management Algorithm</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td align="left">ECDH-1PU+A128KW</td>
+            <td align="left">ECDH-1PU using one-pass KDF and CEK wrapped with "A128KW"</td>
+          </tr>
+          <tr>
+            <td align="left">ECDH-1PU+A192KW</td>
+            <td align="left">ECDH-1PU using one-pass KDF and CEK wrapped with "A192KW"</td>
+          </tr>
+          <tr>
+            <td align="left">ECDH-1PU+A256KW</td>
+            <td align="left">ECDH-1PU using one-pass KDF and CEK wrapped with "A256KW"</td>
+          </tr>
+        </tbody>
+      </table>
+      <section numbered="true" toc="default">
+        <name>Special Considerations for Key Agreement with Key Wrapping mode</name>
+        <t>
                     In Key Agreement with Key Wrapping mode, the JWE Authentication Tag is included in the
-                    input to the Key Derivation Function as described in section <xref target="kdf"/>. This
+                    input to the Key Derivation Function as described in section <xref target="kdf" format="default"/>. This
                     ensures that the content of the JWE was produced by the original sender and not by 
-                    another recipient, as described in section <xref target="security"/>.
-                </t>
-                <t>
+                    another recipient, as described in section <xref target="security" format="default"/>.
+        </t>
+        <t>
                     Key Agreement with Key Wrapping mode MUST only be used with content encryption algorithms
-                    that are compactly committing AEADs as described in <xref target="ccAEAD"/>. The
-                    AES_CBC_HMAC_SHA2 algorithms described in section 5.2 of <xref target="RFC7518"/> are
+                    that are compactly committing AEADs as described in <xref target="ccAEAD" format="default"/>. The
+                    AES_CBC_HMAC_SHA2 algorithms described in section 5.2 of <xref target="RFC7518" format="default"/> are
                     compactly committing and can be used with ECDH-1PU in Key Agreement with Key Wrapping mode.
                     Other content encryption algorithms MUST be rejected. In Direct Key Agreement mode, any
                     JWE content encryption algorithm MAY be used.
-                </t>
-                <t>
+        </t>
+        <t>
                     The requirement to include the JWE Authentication Tag in the input to the Key Derivation
                     Function implies an adjustment to the order of operations performed during JWE Message
-                    Encryption described in section 5.1 of <xref target="RFC7516"/>. Steps 3-8 are deferred
+                    Encryption described in section 5.1 of <xref target="RFC7516" format="default"/>. Steps 3-8 are deferred
                     until after step 15, using the randomly generated CEK from step 2 for encryption of the 
                     message content.
-                </t>
-            </section>
-
-            <section title="Header Parameters used for ECDH Key Agreement">
-                <t>
+        </t>
+      </section>
+      <section numbered="true" toc="default">
+        <name>Header Parameters used for ECDH Key Agreement</name>
+        <t>
                     The "epk" (ephemeral public key), "apu" (Agreement PartyUInfo), and "apv" (Agreement PartyVInfo)
                     header parameters are used in ECDH-1PU exactly as defined in Section 4.6.1 of
-                    <xref target="RFC7518"/>.
-                </t>
-                <t>
+                    <xref target="RFC7518" format="default"/>.
+        </t>
+        <t>
                     When no other values are supplied, it is RECOMMENDED that the producer software
                     initializes the "apu" header to the base64url-encoding of the SHA-256 hash of the
                     concatenation of the sender's static public key and the ephemeral public key, and
                     the "apv" header to the base64url-encoding of the SHA-256 hash of the recipient's
                     static public key. This ensures that all keys involved in the key agreement are
                     cryptographically bound to the derived keys.
-                </t>
-                <section anchor="skid" title="&quot;skid&quot; Header Parameter">
-                    <t>
+        </t>
+        <section anchor="skid" numbered="true" toc="default">
+          <name>"skid" Header Parameter</name>
+          <t>
                         A new Header Parameter "skid" (Sender Key ID) is registered as a hint as to which 
                         of the sender's keys was used to authenticate the JWE. The structure of the "skid"
                         value is unspecified. Its value MUST be a case-sensitive string. Use of this Header
                         Parameter is OPTIONAL. When used with a JWK, the "skid" value is used to match a JWK
-                        "kid" parameter value <xref target="RFC7517"/>.
-                    </t>
-                </section>
-            </section>
-
-            <section anchor="kdf" title="Key Derivation for ECDH-1PU Key Agreement">
-                <t>
+                        "kid" parameter value <xref target="RFC7517" format="default"/>.
+          </t>
+        </section>
+      </section>
+      <section anchor="kdf" numbered="true" toc="default">
+        <name>Key Derivation for ECDH-1PU Key Agreement</name>
+        <t>
                     The key derivation process derives the agreed-upon key from the shared secret Z
-                    established through the ECDH algorithm, per Section 6.2.1.2 of <xref target="NIST.800-56A"/>.
+                    established through the ECDH algorithm, per Section 6.2.1.2 of <xref target="NIST.800-56A" format="default"/>.
                     For the NIST prime order curves "P-256", "P-384", and "P-521", the ECC CDH primitive
-                    for cofactor Diffie-Hellman defined in Section 5.7.1.2 of <xref target="NIST.800-56A"/> is
+                    for cofactor Diffie-Hellman defined in Section 5.7.1.2 of <xref target="NIST.800-56A" format="default"/> is
                     used (taking note that the cofactor for all these curves is 1). For curves "X25519" and
-                    "X448" the appropriate ECDH primitive from Section 5 of <xref target="RFC7748"/> is used.
-                </t>
-                <t>
+                    "X448" the appropriate ECDH primitive from Section 5 of <xref target="RFC7748" format="default"/> is used.
+        </t>
+        <t>
                     Key derivation is performed using the one-step KDF, as defined in Section 5.8.1 and
-                    Section 5.8.2.1 of <xref target="NIST.800-56A"/> using the Concatenation Format of
+                    Section 5.8.2.1 of <xref target="NIST.800-56A" format="default"/> using the Concatenation Format of
                     Section 5.8.2.1.1, where the Auxilary Function H is SHA-256. The KDF parameters
                     are set as follows:
 
-                    <list style="hanging">
-                        <t hangText="Z">
+        </t>
+        <dl newline="false" spacing="normal">
+          <dt>Z</dt>
+          <dd>
                             This is set to the representation of the shared secret Z as an octet sequence.
-                            As per Section 6.2.1.2 of <xref target="NIST.800-56A"/> Z is the concatenation
+                            As per Section 6.2.1.2 of <xref target="NIST.800-56A" format="default"/> Z is the concatenation
                             of Ze and Zs, where Ze is the shared secret derived from applying the ECDH
                             primitive to the sender's ephemeral private key and the recipient's static
                             public key (when sending) or the recipient's static private key and the sender's
@@ -248,27 +241,31 @@
                             applying the ECDH primitive to the sender's static private key and the recipient's 
                             static public key (when sending) or the recipient's static private key and the
                             sender's static public key (when receiving).
-                        </t>
-                        <t hangText="keydatalen">
+                        </dd>
+          <dt>keydatalen</dt>
+          <dd>
                             This is set to the number of bits in the desired output key. For "ECDH-1PU",
                             this is the length of the key used by the "enc" algorithm. For "ECDH-1PU+A128KW",
                             "ECDH-1PU+A192KW", and "ECDH-1PU+A256KW", this is 128, 192, and 256, respectively.
-                        </t>
-                        <t hangText="cctag">
+                        </dd>
+          <dt>cctag</dt>
+          <dd>
                             In Direct Key Agreement mode this is set to an empty octet string. In Key Agreement
                             with Key Wrapping mode, this is set to a value of the form Datalen || Data, where Data
                             is the raw octets of the JWE Authentication Tag, and Datalen is the big-endian 32-bit
                             length of the authentication tag (in octets).
-                        </t>
-                        <t hangText="AlgorithmID">
+                        </dd>
+          <dt>AlgorithmID</dt>
+          <dd>
                             The AlgorithmID value is of the form Datalen || Data, where Data is a variable-length
                             string of zero or more octets, and Datalen is a fixed-length, big-endian 32-bit counter
                             that indicates the length (in octets) of Data. In the Direct Key Agreement case,
                             Data is set to the octets of the ASCII representation of the "enc" Header Parameter value.
                             In the Key Agreement with Key Wrapping case, Data is set to the octets of the ASCII
                             representation of the "alg" (algorithm) Header Parameter value.
-                        </t>
-                        <t hangText="PartyUInfo">
+                        </dd>
+          <dt>PartyUInfo</dt>
+          <dd>
                           The PartyUInfo value is of the form Datalen || Data, where Data is
                           a variable-length string of zero or more octets, and Datalen is a
                           fixed-length, big-endian 32-bit counter that indicates the length
@@ -277,8 +274,9 @@
                           decoding the "apu" value and Datalen is set to the number of
                           octets in Data.  Otherwise, Datalen is set to 0 and Data is set to
                           the empty octet sequence.
-                        </t>
-                        <t hangText="PartyVInfo">
+                        </dd>
+          <dt>PartyVInfo</dt>
+          <dd>
                           The PartyVInfo value is of the form Datalen || Data, where Data is
                           a variable-length string of zero or more octets, and Datalen is a
                           fixed-length, big-endian 32-bit counter that indicates the length
@@ -287,292 +285,378 @@
                           decoding the "apv" value and Datalen is set to the number of
                           octets in Data.  Otherwise, Datalen is set to 0 and Data is set to
                           the empty octet sequence.
-                        </t>
-                        <t hangText="SuppPubInfo">
+                        </dd>
+          <dt>SuppPubInfo</dt>
+          <dd>
                             This is set to the keydatalen represented as a 32-bit big-endian integer
                             followed by the octets of the cctag.
-                        </t>
-                        <t hangText="SuppPrivInfo">
+                        </dd>
+          <dt>SuppPrivInfo</dt>
+          <dd>
                             This is set to the empty octet sequence.
-                        </t>
-                    </list>
+                        </dd>
+        </dl>
+        <t>
 
                     Applications need to specify how the "apu" and "apv" Header Parameters are used for that
                     application. The "apu" and "apv" values MUST be distinct, when used. Applications wishing
-                    to conform to <xref target="NIST.800-56A"/> need to provide values that meet the requirements
+                    to conform to <xref target="NIST.800-56A" format="default"/> need to provide values that meet the requirements
                     of that document, e.g., by using values that identify the producer and consumer.
-                </t>
-                <t>
-                    See <xref target="exampleA"/> for an example key agreement computation using Direct Key Agreement
-                    mode, and <xref target="exampleB"/> for an example sending to multiple recipients using Key
+        </t>
+        <t>
+                    See <xref target="exampleA" format="default"/> for an example key agreement computation using Direct Key Agreement
+                    mode, and <xref target="exampleB" format="default"/> for an example sending to multiple recipients using Key
                     Agreement with Key Wrapping mode.
-                </t>
-
-            </section>
-        </section>
-
-        <section anchor="IANA" title="IANA considerations">
-            <?rfc subcompact="yes" ?>
-            <t>
+        </t>
+      </section>
+    </section>
+    <section anchor="IANA" numbered="true" toc="default">
+      <name>IANA considerations</name>
+      <t>
                 This section registers identifiers under the IANA JSON Web Signature and Encryption Algorithms
-                Registry established by <xref target="RFC7518"/> and the IANA JSON Web Signature and Encryption
-                Header Parameters registry established by <xref target="RFC7515"/>.
-            </t>
-            <section title="JSON Web Signature and Encryption Algorithms Registration">
-                <t>
+                Registry established by <xref target="RFC7518" format="default"/> and the IANA JSON Web Signature and Encryption
+                Header Parameters registry established by <xref target="RFC7515" format="default"/>.
+      </t>
+      <section numbered="true" toc="default">
+        <name>JSON Web Signature and Encryption Algorithms Registration</name>
+        <t>
                     This section registers JWE algorithms as per the registry established in
-                    <xref target="RFC7518"/>. 
-                </t>
-
-                <section title="ECDH-1PU">
-                    <t>
-                        <list style="bullets">
-                            <t>Algorithm Name: "ECDH-1PU"</t>
-                            <t>Algorithm Description: ECDH One-Pass Unified Model using one-pass KDF</t>
-                            <t>Algorithm Usage Location(s): "alg"</t>
-                            <t>JOSE Implementation Requirements: Optional</t>
-                            <t>Change Controller: IESG</t>
-                            <t>Specification Document(s): <xref target="ecdh-1pu"/></t>
-                            <t>Algorithm Analysis Document(s): <xref target="NIST.800-56A"/> (Section 7.3), 
-                                <xref target="PKAE"/></t>
-                        </list>
-                    </t>
-                    <t>
-                        <list style="bullets">
-                            <t>Algorithm Name: "ECDH-1PU+A128KW"</t>
-                            <t>Algorithm Description: ECDH One-Pass Unified Model using one-pass KDF and "A128KW"</t>
-                            <t>Algorithm Usage Location(s): "alg"</t>
-                            <t>JOSE Implementation Requirements: Optional</t>
-                            <t>Change Controller: IESG</t>
-                            <t>Specification Document(s): <xref target="ecdh-1pu"/></t>
-                            <t>Algorithm Analysis Document(s): <xref target="NIST.800-56A"/> (Section 7.3), 
-                                <xref target="PKAE"/></t>
-                        </list>
-                    </t>
-                    <t>
-                        <list style="bullets">
-                            <t>Algorithm Name: "ECDH-1PU+A192KW"</t>
-                            <t>Algorithm Description: ECDH One-Pass Unified Model using one-pass KDF and "A192KW"</t>
-                            <t>Algorithm Usage Location(s): "alg"</t>
-                            <t>JOSE Implementation Requirements: Optional</t>
-                            <t>Change Controller: IESG</t>
-                            <t>Specification Document(s): <xref target="ecdh-1pu"/></t>
-                            <t>Algorithm Analysis Document(s): <xref target="NIST.800-56A"/> (Section 7.3), 
-                                <xref target="PKAE"/></t>
-                        </list>
-                    </t>
-                    <t>
-                        <list style="bullets">
-                            <t>Algorithm Name: "ECDH-1PU+A256KW"</t>
-                            <t>Algorithm Description: ECDH One-Pass Unified Model using one-pass KDF and "A256KW"</t>
-                            <t>Algorithm Usage Location(s): "alg"</t>
-                            <t>JOSE Implementation Requirements: Optional</t>
-                            <t>Change Controller: IESG</t>
-                            <t>Specification Document(s): <xref target="ecdh-1pu"/></t>
-                            <t>Algorithm Analysis Document(s): <xref target="NIST.800-56A"/> (Section 7.3), 
-                                <xref target="PKAE"/></t>
-                        </list>
-                    </t>
-                </section>
-            </section>
-
-            <section title="JSON Web Signature and Encryption Header Parameters Registration">
-                <t>
-                    This section registers new Header Parameters as per the registry established in
-                    <xref target="RFC7515"/>.
-                </t>
-
-                <section title="skid">
-                    <t>
-                        <list style="bullets">
-                            <t>Header Parameter Name: "skid"</t>
-                            <t>Header Parameter Description: Sender Key ID</t>
-                            <t>Header Parameter Usage Location(s): JWE</t>
-                            <t>Change Controller: IESG</t>
-                            <t>Specification Document(s): <xref target="skid"/></t>
-                        </list>
-                    </t>
-                </section>
-            </section>
-
+                    <xref target="RFC7518" format="default"/>. 
+        </t>
+        <section numbered="true" toc="default">
+          <name>ECDH-1PU</name>
+          <ul spacing="compact">
+            <li>Algorithm Name: "ECDH-1PU"</li>
+            <li>Algorithm Description: ECDH One-Pass Unified Model using one-pass KDF</li>
+            <li>Algorithm Usage Location(s): "alg"</li>
+            <li>JOSE Implementation Requirements: Optional</li>
+            <li>Change Controller: IESG</li>
+            <li>Specification Document(s): <xref target="ecdh-1pu" format="default"/></li>
+            <li>Algorithm Analysis Document(s): <xref target="NIST.800-56A" format="default"/> (Section 7.3), 
+                                <xref target="PKAE" format="default"/></li>
+          </ul>
+          <ul spacing="compact">
+            <li>Algorithm Name: "ECDH-1PU+A128KW"</li>
+            <li>Algorithm Description: ECDH One-Pass Unified Model using one-pass KDF and "A128KW"</li>
+            <li>Algorithm Usage Location(s): "alg"</li>
+            <li>JOSE Implementation Requirements: Optional</li>
+            <li>Change Controller: IESG</li>
+            <li>Specification Document(s): <xref target="ecdh-1pu" format="default"/></li>
+            <li>Algorithm Analysis Document(s): <xref target="NIST.800-56A" format="default"/> (Section 7.3), 
+                                <xref target="PKAE" format="default"/></li>
+          </ul>
+          <ul spacing="compact">
+            <li>Algorithm Name: "ECDH-1PU+A192KW"</li>
+            <li>Algorithm Description: ECDH One-Pass Unified Model using one-pass KDF and "A192KW"</li>
+            <li>Algorithm Usage Location(s): "alg"</li>
+            <li>JOSE Implementation Requirements: Optional</li>
+            <li>Change Controller: IESG</li>
+            <li>Specification Document(s): <xref target="ecdh-1pu" format="default"/></li>
+            <li>Algorithm Analysis Document(s): <xref target="NIST.800-56A" format="default"/> (Section 7.3), 
+                                <xref target="PKAE" format="default"/></li>
+          </ul>
+          <ul spacing="compact">
+            <li>Algorithm Name: "ECDH-1PU+A256KW"</li>
+            <li>Algorithm Description: ECDH One-Pass Unified Model using one-pass KDF and "A256KW"</li>
+            <li>Algorithm Usage Location(s): "alg"</li>
+            <li>JOSE Implementation Requirements: Optional</li>
+            <li>Change Controller: IESG</li>
+            <li>Specification Document(s): <xref target="ecdh-1pu" format="default"/></li>
+            <li>Algorithm Analysis Document(s): <xref target="NIST.800-56A" format="default"/> (Section 7.3), 
+                                <xref target="PKAE" format="default"/></li>
+          </ul>
         </section>
-
-        <section anchor="security" title="Security Considerations">
-            <t>
-                The security considerations of <xref target="RFC7516"/> and <xref target="RFC7518"/> 
+      </section>
+      <section numbered="true" toc="default">
+        <name>JSON Web Signature and Encryption Header Parameters Registration</name>
+        <t>
+                    This section registers new Header Parameters as per the registry established in
+                    <xref target="RFC7515" format="default"/>.
+        </t>
+        <section numbered="true" toc="default">
+          <name>skid</name>
+          <ul spacing="compact">
+            <li>Header Parameter Name: "skid"</li>
+            <li>Header Parameter Description: Sender Key ID</li>
+            <li>Header Parameter Usage Location(s): JWE</li>
+            <li>Change Controller: IESG</li>
+            <li>Specification Document(s): <xref target="skid" format="default"/></li>
+          </ul>
+        </section>
+      </section>
+    </section>
+    <section anchor="security" numbered="true" toc="default">
+      <name>Security Considerations</name>
+      <t>
+                The security considerations of <xref target="RFC7516" format="default"/> and <xref target="RFC7518" format="default"/> 
                 relevant to ECDH-ES also apply to this specification.
-            </t>
-            <t>The security considerations of <xref target="NIST.800-56A"/> apply here.</t>
-
-            <t>
+      </t>
+      <t>The security considerations of <xref target="NIST.800-56A" format="default"/> apply here.</t>
+      <t>
                 When performing an ECDH key agreement between a static private key and any untrusted
                 public key, care should be taken to ensure that the public key is a valid point on
                 the same curve as the private key. Failure to do so may result in compromise of the
                 static private key. For the NIST curves P-256, P-384, and P-521, appropriate validation
-                routines are given in Section 5.6.2.3.3 of <xref target="NIST.800-56A"/>. For the curves
-                used by X25519 and X448, consult the security considerations of <xref target="RFC7748"/>.
-            </t>
-
-            <t>
+                routines are given in Section 5.6.2.3.3 of <xref target="NIST.800-56A" format="default"/>. For the curves
+                used by X25519 and X448, consult the security considerations of <xref target="RFC7748" format="default"/>.
+      </t>
+      <t>
                 The ECDH-1PU algorithm is vulnerable to Key Compromise Impersonation (KCI) attacks. If
                 the long-term static private key of a party is compromised, then the attacker can not
                 only impersonate that party to other parties, but also impersonate any other party when
                 communicating with the compromised party. If resistance to KCI is desired in a single 
                 message, then the sender SHOULD use a nested JWS signature over the content. 
-            </t>
-
-            <t>
+      </t>
+      <t>
                 When Key Agreement with Key Wrapping is used, the JWE Authentication Tag is included in
-                the input to the Key Derivation Function, as described in section <xref target="kdf"/>.
+                the input to the Key Derivation Function, as described in section <xref target="kdf" format="default"/>.
                 Without this step, when the same Content Encryption Key (CEK) is reused for multiple
                 recipients, then any of those recipients can produce a new message that appears to come
                 from the original sender. If the MAC used by the content encryption algorithm is not
-                compactly committing (<xref target="ccAEAD"/>) then it may be possible for a recipient
+                compactly committing (<xref target="ccAEAD" format="default"/>) then it may be possible for a recipient
                 to calculate an alternative message that produces the same authentication tag. An
                 alternative is to encrypt the message separately to each recipient using Direct Key
                 Agreement, or to sign the message using a nested signed-then-encrypted JOSE composition.
-            </t>
-
-            <t>
+      </t>
+      <t>
                 The security properties of the one-pass unified model are given in Section 7.3 of
-                <xref target="NIST.800-56A"/>. 
-            </t>
-
-        </section>
-
-    </middle>
-
-    <back>
-        <references title="Normative References">
-            &RFC7515;
-            &RFC7516;
-            &RFC7517;
-            &RFC7518;
-            &RFC7748;
-            &RFC8174;  
-            
-            <reference anchor="NIST.800-56A">
-              <front>
-                  <title>Recommendation for Pair-Wise Key Establishment Using Discrete Logarithm Cryptography Revision 3.</title>
-                  <author surname="Barker" initials="E.">
-                      <organization>Computer Security Division, Information Technology Laboratory</organization>
-                  </author>
-                  <author surname="Chen" initials="L.">
-                      <organization>Computer Security Division, Information Technology Laboratory</organization>
-                  </author>
-                  <author surname="Roginsky" initials="A.">
-                      <organization>Computer Security Division, Information Technology Laboratory</organization>
-                  </author>
-                  <author surname="Vassilev" initials="A.">
-                      <organization>Computer Security Division, Information Technology Laboratory</organization>
-                  </author>
-                  <author surname="Davis" initials="R.">
-                      <organization>National Security Agency</organization>
-                  </author>
-                  <date month="April" year="2018"/>
-              </front>
-              <seriesInfo name="NIST Special Publication" value="800-56A"/>
-              <format target="https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-56Ar3.pdf" type="PDF"/>
-          </reference>
-
-        </references>
-
-
-        <references title="Informative References">
-            <reference anchor="PKAE">
-                <front>
-                    <title>Authenticated Encryption in the Public-Key Setting: Security Notions and Analyses</title>
-                    <author surname="An" initials="J.">
-                        <organization>University of California at Davis</organization>
-                    </author>
-                    <date year="2001"/>
-                </front>
-                <seriesInfo name="IACR" value="ePrint 2001/079"/>
-                <format target="https://eprint.iacr.org/2001/079.ps" type="PS"/>
-            </reference>
-            <reference anchor="ccAEAD">
-                <front>
-                    <title>Message Franking via Committing Authenticated Encryption</title>
-                    <author fullname="Paul Grubbs">
-                        <organization>Cornell Tech</organization>
-                    </author>
-                    <author fullname="Jiahui Lu">
-                        <organization>Shanghai Jiao Tong University</organization>
-                    </author>
-                    <author fullname="Thomas Ristenpart">
-                        <organization>Cornell Tech</organization>
-                    </author>
-                    <date year="2017"/>
-                </front>
-                <seriesInfo name="IACR" value="ePrint 2017/664"/>
-                <format target="https://eprint.iacr.org/2017/664.pdf" type="PDF"/>
-            </reference>
-            <reference anchor="MRES">
-                <front>
-                    <title>Multi-Recipient Encryption Schemes: Efficient Constructions and their Security</title>
-                    <author surname="Bellare" initials="M.">
-                        <organization>University of California at San Diego</organization>
-                    </author>
-                    <author surname="Boldyreva" initials="A.">
-                        <organization>Georgia Institute of Technology</organization>
-                    </author>
-                    <author surname="Kurosawa" initials="K.">
-                        <organization>Ibaraki University</organization>
-                    </author>
-                    <author surname="Staddon" initials="J.">
-                        <organization>Palo Alto Research Center</organization>
-                    </author>
-                    <date year="2007"/>
-                </front>
-                <seriesInfo name="IEEE Transactions on Information Theory" value="Vol. 53, Number 11"/>
-                <format target="https://www.cc.gatech.edu/~aboldyre/papers/bbks.pdf" type="PDF"/>
-            </reference>
-            &RFC8037;
-          </references>
-
-      <section anchor="exampleA" title="Example ECDH-1PU Key Agreement Computation with A256GCM">
-          <t>
+                <xref target="NIST.800-56A" format="default"/>. 
+      </t>
+    </section>
+  </middle>
+  <back>
+    <references>
+      <name>References</name>
+      <references>
+        <name>Normative References</name>
+        <reference anchor="RFC7515" target="https://www.rfc-editor.org/info/rfc7515" xml:base="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.7515.xml">
+          <front>
+            <title>JSON Web Signature (JWS)</title>
+            <author initials="M." surname="Jones" fullname="M. Jones">
+              <organization/>
+            </author>
+            <author initials="J." surname="Bradley" fullname="J. Bradley">
+              <organization/>
+            </author>
+            <author initials="N." surname="Sakimura" fullname="N. Sakimura">
+              <organization/>
+            </author>
+            <date year="2015" month="May"/>
+            <abstract>
+              <t>JSON Web Signature (JWS) represents content secured with digital signatures or Message Authentication Codes (MACs) using JSON-based data structures.  Cryptographic algorithms and identifiers for use with this specification are described in the separate JSON Web Algorithms (JWA) specification and an IANA registry defined by that specification.  Related encryption capabilities are described in the separate JSON Web Encryption (JWE) specification.</t>
+            </abstract>
+          </front>
+          <seriesInfo name="RFC" value="7515"/>
+          <seriesInfo name="DOI" value="10.17487/RFC7515"/>
+        </reference>
+        <reference anchor="RFC7516" target="https://www.rfc-editor.org/info/rfc7516" xml:base="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.7516.xml">
+          <front>
+            <title>JSON Web Encryption (JWE)</title>
+            <author initials="M." surname="Jones" fullname="M. Jones">
+              <organization/>
+            </author>
+            <author initials="J." surname="Hildebrand" fullname="J. Hildebrand">
+              <organization/>
+            </author>
+            <date year="2015" month="May"/>
+            <abstract>
+              <t>JSON Web Encryption (JWE) represents encrypted content using JSON-based data structures.  Cryptographic algorithms and identifiers for use with this specification are described in the separate JSON Web Algorithms (JWA) specification and IANA registries defined by that specification.  Related digital signature and Message Authentication Code (MAC) capabilities are described in the separate JSON Web Signature (JWS) specification.</t>
+            </abstract>
+          </front>
+          <seriesInfo name="RFC" value="7516"/>
+          <seriesInfo name="DOI" value="10.17487/RFC7516"/>
+        </reference>
+        <reference anchor="RFC7517" target="https://www.rfc-editor.org/info/rfc7517" xml:base="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.7517.xml">
+          <front>
+            <title>JSON Web Key (JWK)</title>
+            <author initials="M." surname="Jones" fullname="M. Jones">
+              <organization/>
+            </author>
+            <date year="2015" month="May"/>
+            <abstract>
+              <t>A JSON Web Key (JWK) is a JavaScript Object Notation (JSON) data structure that represents a cryptographic key.  This specification also defines a JWK Set JSON data structure that represents a set of JWKs.  Cryptographic algorithms and identifiers for use with this specification are described in the separate JSON Web Algorithms (JWA) specification and IANA registries established by that specification.</t>
+            </abstract>
+          </front>
+          <seriesInfo name="RFC" value="7517"/>
+          <seriesInfo name="DOI" value="10.17487/RFC7517"/>
+        </reference>
+        <reference anchor="RFC7518" target="https://www.rfc-editor.org/info/rfc7518" xml:base="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.7518.xml">
+          <front>
+            <title>JSON Web Algorithms (JWA)</title>
+            <author initials="M." surname="Jones" fullname="M. Jones">
+              <organization/>
+            </author>
+            <date year="2015" month="May"/>
+            <abstract>
+              <t>This specification registers cryptographic algorithms and identifiers to be used with the JSON Web Signature (JWS), JSON Web Encryption (JWE), and JSON Web Key (JWK) specifications.  It defines several IANA registries for these identifiers.</t>
+            </abstract>
+          </front>
+          <seriesInfo name="RFC" value="7518"/>
+          <seriesInfo name="DOI" value="10.17487/RFC7518"/>
+        </reference>
+        <reference anchor="RFC7748" target="https://www.rfc-editor.org/info/rfc7748" xml:base="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.7748.xml">
+          <front>
+            <title>Elliptic Curves for Security</title>
+            <author initials="A." surname="Langley" fullname="A. Langley">
+              <organization/>
+            </author>
+            <author initials="M." surname="Hamburg" fullname="M. Hamburg">
+              <organization/>
+            </author>
+            <author initials="S." surname="Turner" fullname="S. Turner">
+              <organization/>
+            </author>
+            <date year="2016" month="January"/>
+            <abstract>
+              <t>This memo specifies two elliptic curves over prime fields that offer a high level of practical security in cryptographic applications, including Transport Layer Security (TLS).  These curves are intended to operate at the ~128-bit and ~224-bit security level, respectively, and are generated deterministically based on a list of required properties.</t>
+            </abstract>
+          </front>
+          <seriesInfo name="RFC" value="7748"/>
+          <seriesInfo name="DOI" value="10.17487/RFC7748"/>
+        </reference>
+        <reference anchor="RFC8174" target="https://www.rfc-editor.org/info/rfc8174" xml:base="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.8174.xml">
+          <front>
+            <title>Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words</title>
+            <author initials="B." surname="Leiba" fullname="B. Leiba">
+              <organization/>
+            </author>
+            <date year="2017" month="May"/>
+            <abstract>
+              <t>RFC 2119 specifies common key words that may be used in protocol  specifications.  This document aims to reduce the ambiguity by clarifying that only UPPERCASE usage of the key words have the  defined special meanings.</t>
+            </abstract>
+          </front>
+          <seriesInfo name="BCP" value="14"/>
+          <seriesInfo name="RFC" value="8174"/>
+          <seriesInfo name="DOI" value="10.17487/RFC8174"/>
+        </reference>
+        <reference anchor="NIST.800-56A" target="https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-56Ar3.pdf">
+          <front>
+            <title>Recommendation for Pair-Wise Key Establishment Using Discrete Logarithm Cryptography Revision 3.</title>
+            <author surname="Barker" initials="E.">
+              <organization>Computer Security Division, Information Technology Laboratory</organization>
+            </author>
+            <author surname="Chen" initials="L.">
+              <organization>Computer Security Division, Information Technology Laboratory</organization>
+            </author>
+            <author surname="Roginsky" initials="A.">
+              <organization>Computer Security Division, Information Technology Laboratory</organization>
+            </author>
+            <author surname="Vassilev" initials="A.">
+              <organization>Computer Security Division, Information Technology Laboratory</organization>
+            </author>
+            <author surname="Davis" initials="R.">
+              <organization>National Security Agency</organization>
+            </author>
+            <date month="April" year="2018"/>
+          </front>
+          <seriesInfo name="NIST Special Publication" value="800-56A"/>
+        </reference>
+      </references>
+      <references>
+        <name>Informative References</name>
+        <reference anchor="PKAE" target="https://eprint.iacr.org/2001/079.ps">
+          <front>
+            <title>Authenticated Encryption in the Public-Key Setting: Security Notions and Analyses</title>
+            <author surname="An" initials="J.">
+              <organization>University of California at Davis</organization>
+            </author>
+            <date year="2001"/>
+          </front>
+          <seriesInfo name="IACR" value="ePrint 2001/079"/>
+        </reference>
+        <reference anchor="ccAEAD" target="https://eprint.iacr.org/2017/664.pdf">
+          <front>
+            <title>Message Franking via Committing Authenticated Encryption</title>
+            <author fullname="Paul Grubbs">
+              <organization>Cornell Tech</organization>
+            </author>
+            <author fullname="Jiahui Lu">
+              <organization>Shanghai Jiao Tong University</organization>
+            </author>
+            <author fullname="Thomas Ristenpart">
+              <organization>Cornell Tech</organization>
+            </author>
+            <date year="2017"/>
+          </front>
+          <seriesInfo name="IACR" value="ePrint 2017/664"/>
+        </reference>
+        <reference anchor="MRES" target="https://www.cc.gatech.edu/~aboldyre/papers/bbks.pdf">
+          <front>
+            <title>Multi-Recipient Encryption Schemes: Efficient Constructions and their Security</title>
+            <author surname="Bellare" initials="M.">
+              <organization>University of California at San Diego</organization>
+            </author>
+            <author surname="Boldyreva" initials="A.">
+              <organization>Georgia Institute of Technology</organization>
+            </author>
+            <author surname="Kurosawa" initials="K.">
+              <organization>Ibaraki University</organization>
+            </author>
+            <author surname="Staddon" initials="J.">
+              <organization>Palo Alto Research Center</organization>
+            </author>
+            <date year="2007"/>
+          </front>
+          <seriesInfo name="IEEE Transactions on Information Theory" value="Vol. 53, Number 11"/>
+        </reference>
+        <reference anchor="RFC8037" target="https://www.rfc-editor.org/info/rfc8037" xml:base="https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.8037.xml">
+          <front>
+            <title>CFRG Elliptic Curve Diffie-Hellman (ECDH) and Signatures in JSON Object Signing and Encryption (JOSE)</title>
+            <author initials="I." surname="Liusvaara" fullname="I. Liusvaara">
+              <organization/>
+            </author>
+            <date year="2017" month="January"/>
+            <abstract>
+              <t>This document defines how to use the Diffie-Hellman algorithms "X25519" and "X448" as well as the signature algorithms "Ed25519" and "Ed448" from the IRTF CFRG elliptic curves work in JSON Object Signing and Encryption (JOSE).</t>
+            </abstract>
+          </front>
+          <seriesInfo name="RFC" value="8037"/>
+          <seriesInfo name="DOI" value="10.17487/RFC8037"/>
+        </reference>
+      </references>
+    </references>
+    <section anchor="exampleA" numbered="true" toc="default">
+      <name>Example ECDH-1PU Key Agreement Computation with A256GCM</name>
+      <t>
               This example uses ECDH-1PU in Direct Key Agreement mode ("alg" value "ECDH-1PU")
               to produce an agreed-upon key for AES GCM with a 256-bit key ("enc" value "A256GCM").
               The example re-uses the keys and parameters of the example computation in Appendix C
-              of <xref target="RFC7518"/>, with the addition of an extra static key-pair for Alice.
-          </t>
-          <t>
+              of <xref target="RFC7518" format="default"/>, with the addition of an extra static key-pair for Alice.
+      </t>
+      <t>
               In this example, a producer Alice is encrypting content to a consumer Bob. Alice's
               static key-pair (in JWK format) used for the key agreement in this example (including
               the private part) is:
-          </t>
-<figure>
-  <artwork><![CDATA[
+      </t>
+      <artwork name="" type="" align="left" alt=""><![CDATA[
       {"kty":"EC",
        "crv":"P-256",
        "x":"WKn-ZIGevcwGIyyrzFoZNBdaq9_TsqzGl96oc0CWuis",
        "y":"y77t-RvAHRKTsSGdIYUfweuOvwrvDD-Q3Hv5J0fSKbE",
        "d":"Hndv7ZZjs_ke8o9zXYo3iq-Yr8SewI5vrqd0pAvEPqg"}
       ]]></artwork>
-</figure>
-          <t>
+      <t>
               Bob's static key-pair (in JWK format) is:
-          </t>
-<figure><artwork><![CDATA[
+      </t>
+      <artwork name="" type="" align="left" alt=""><![CDATA[
       {"kty":"EC",
        "crv":"P-256",
        "x":"weNJy2HscCSM6AEDTDg04biOvhFhyyWvOHQfeF_PxMQ",
        "y":"e8lnCO-AlStT-NJVX-crhB7QRYhiix03illJOVAOyck",
        "d":"VEmDZpDXXK8p8N0Cndsxs924q6nS1RXFASRl6BfUqdw"}
-      ]]></artwork></figure>
-          <t>
+      ]]></artwork>
+      <t>
               The producer (Alice) generates an ephemeral key for the key agreement computation.
               Alice's ephemeral key (in JWK format) is:
-          </t>
-<figure><artwork><![CDATA[
+      </t>
+      <artwork name="" type="" align="left" alt=""><![CDATA[
       {"kty":"EC",
        "crv":"P-256",
        "x":"gI0GAILBdu7T53akrFmMyGcsF3n5dO7MmwNBHKW5SV0",
        "y":"SLW_xSffzlPWrHEVI30DHM_4egVwt3NQqeUD7nMFpps",
        "d":"0_NxaRPUMQoAJt50Gz8YiTr8gRTwyEaCumd-MToTmIo"}
-      ]]></artwork></figure>
-          <t>
+      ]]></artwork>
+      <t>
            Header Parameter values used in this example are as follows.  The
            "apu" (agreement PartyUInfo) Header Parameter value is the base64url
            encoding of the UTF-8 string "Alice" and the "apv" (agreement
@@ -580,8 +664,8 @@
            UTF-8 string "Bob".  The "epk" (ephemeral public key) Header
            Parameter is used to communicate the producer's (Alice's) ephemeral
            public key value to the consumer (Bob).
-          </t>
-<figure><artwork><![CDATA[
+      </t>
+      <artwork name="" type="" align="left" alt=""><![CDATA[
      {"alg":"ECDH-1PU",
       "enc":"A256GCM",
       "apu":"QWxpY2U",
@@ -593,196 +677,177 @@
         "y":"SLW_xSffzlPWrHEVI30DHM_4egVwt3NQqeUD7nMFpps"
        }
      }
-      ]]></artwork></figure>
-          <t>
-              The resulting one-pass KDF <xref target="NIST.800-56A"/> parameter values are:
-              <list style="hanging">
-                  <t hangText="Ze">
+      ]]></artwork>
+      <t>
+              The resulting one-pass KDF <xref target="NIST.800-56A" format="default"/> parameter values are:
+      </t>
+      <dl newline="false" spacing="compact">
+        <dt>Ze</dt>
+        <dd>
                       This is set to the output of the ECDH key agreement between Alice's
                       ephemeral private key and Bob's static public key. In this example,
                       Ze is the following octet sequence (in hexadecimal notation):
-                  </t>
-              </list>
-          </t>
-          <t>
-              <figure><artwork>
+                  </dd>
+      </dl>
+      <artwork name="" type="" align="left" alt=""><![CDATA[
       9e 56 d9 1d 81 71 35 d3 72 83 42 83 bf 84 26 9c 
-      fb 31 6e a3 da 80 6a 48 f6 da a7 79 8c fe 90 c4</artwork></figure>
-          </t>
-          <t>
-              <list style="hanging">
-
-                  <t hangText="Zs">
+      fb 31 6e a3 da 80 6a 48 f6 da a7 79 8c fe 90 c4]]></artwork>
+      <dl newline="false" spacing="compact">
+        <dt>Zs</dt>
+        <dd>
                       This is set to the output of the ECDH key agreement between Alice's
                       static private key and Bob's static public key. In this example,
                       Zs is the following octet sequence (in hexadecimal notation):
-                  </t>
-              </list>
-          </t>
-          <t>
-              <figure><artwork><![CDATA[
+                  </dd>
+      </dl>
+      <artwork name="" type="" align="left" alt=""><![CDATA[
       e3 ca 34 74 38 4c 9f 62 b3 0b fd 4c 68 8b 3e 7d
-      41 10 a1 b4 ba dc 3c c5 4e f7 b8 12 41 ef d5 0d]]></artwork></figure>
-          </t>
-          <t>
-              <list style="hanging">
-                  <t hangText="Z">
+      41 10 a1 b4 ba dc 3c c5 4e f7 b8 12 41 ef d5 0d]]></artwork>
+      <dl newline="false" spacing="compact">
+        <dt>Z</dt>
+        <dd>
                       This is set to the concatenation of Ze followed by Zs. In this example,
                       Z is the following octet sequence (in hexadecimal notation):
-                  </t>
-              </list>
-          </t>
-          <t>
-                      <figure><artwork><![CDATA[
+                  </dd>
+      </dl>
+      <artwork name="" type="" align="left" alt=""><![CDATA[
       9e 56 d9 1d 81 71 35 d3 72 83 42 83 bf 84 26 9c 
       fb 31 6e a3 da 80 6a 48 f6 da a7 79 8c fe 90 c4
       e3 ca 34 74 38 4c 9f 62 b3 0b fd 4c 68 8b 3e 7d
-      41 10 a1 b4 ba dc 3c c5 4e f7 b8 12 41 ef d5 0d]]></artwork></figure>
-          </t>
-          <t>
-              <list style="hanging">
-                  <t hangText="keydatalen">
+      41 10 a1 b4 ba dc 3c c5 4e f7 b8 12 41 ef d5 0d]]></artwork>
+      <dl newline="false" spacing="compact">
+        <dt>keydatalen</dt>
+        <dd>
                       This value is 256 - the number of bits in the desired output key
                       (because "A256GCM" uses a 256-bit key).
-                  </t>
-                  <t hangText="cctag">
+                  </dd>
+        <dt>cctag</dt>
+        <dd>
                       This value is the empty octet string.
-                  </t>
-                  <t hangText="AlgorithmID">
+                  </dd>
+        <dt>AlgorithmID</dt>
+        <dd>
                       This is set to the octets representing the 32-bit big-endian value
                       7 - 00 00 00 07 in hexadecimal notation - the number of octets in
                       the AlgorithmID content "A256GCM", followed by the octets representing
                       the ASCII string "A256GCM" - 41 32 35 36 47 43 4d (in hex). The
                       complete value is therefore: 00 00 00 07 41 32 35 36 47 43 4d
-                  </t>
-                  <t hangText="PartyUInfo">
+                  </dd>
+        <dt>PartyUInfo</dt>
+        <dd>
                       This is set to the octets representing the 32-bit big-endian value
                       5, followed by the octets representing the UTF-8 string "Alice". In
                       hexadecimal notation: 00 00 00 05 41 6c 69 63 65
-                  </t>
-                  <t hangText="PartyVInfo">
+                  </dd>
+        <dt>PartyVInfo</dt>
+        <dd>
                       This is set to the octets representing the 32-bit big-endian value
                       3, followed by the octets representing the UTF-8 string "Bob". In
                       hexadecimal notation: 00 00 00 03 42 6f 62
-                  </t>
-                  <t hangText="SuppPubInfo">
+                  </dd>
+        <dt>SuppPubInfo</dt>
+        <dd>
                       This is set to the octets representing the 32-bit big-endian value
                       256 - the keydatalen value. In hexadecimal notation: 00 00 01 00
-                  </t>
-                  <t hangText="SuppPrivInfo">
+                  </dd>
+        <dt>SuppPrivInfo</dt>
+        <dd>
                       This is set to the empty octet sequence.
-                  </t>
-              </list>
-          </t>
-          <t>
+                  </dd>
+      </dl>
+      <t>
               Concatenating the parameters AlgorithmID through SuppPrivInfo results in a FixedInfo
-              value in Concatenation Format (as per Section 5.8.2.1.1 of <xref target="NIST.800-56A"/>)
+              value in Concatenation Format (as per Section 5.8.2.1.1 of <xref target="NIST.800-56A" format="default"/>)
               of (in hexidecimal notation):
-          </t>
-          <t>
-<figure><artwork><![CDATA[
+      </t>
+      <artwork name="" type="" align="left" alt=""><![CDATA[
       00 00 00 07 41 32 35 36 47 43 4d 00 00 00 05 41 
       6c 69 63 65 00 00 00 03 42 6f 62 00 00 01 00
-]]></artwork></figure>
-          </t>
-          <t>
+]]></artwork>
+      <t>
               Concatenating the round number 1 (00 00 00 01), Z, and the FixedInfo value results in
               a one-pass KDF round 1 hash input of (hexadecimal):
-          </t>
-          <t>
-<figure><artwork><![CDATA[
+      </t>
+      <artwork name="" type="" align="left" alt=""><![CDATA[
       00 00 00 01 9e 56 d9 1d 81 71 35 d3 72 83 42 83
       bf 84 26 9c fb 31 6e a3 da 80 6a 48 f6 da a7 79
       8c fe 90 c4 e3 ca 34 74 38 4c 9f 62 b3 0b fd 4c
       68 8b 3e 7d 41 10 a1 b4 ba dc 3c c5 4e f7 b8 12
       41 ef d5 0d 00 00 00 07 41 32 35 36 47 43 4d 00
       00 00 05 41 6c 69 63 65 00 00 00 03 42 6f 62 00
-      00 01 00 ]]></artwork></figure>
-          </t>
-          <t>
+      00 01 00 ]]></artwork>
+      <t>
               The resulting derived key, which is the full 256 bits of the round 1 hash output is:
-          </t>
-          <t>
-<figure><artwork><![CDATA[
+      </t>
+      <artwork name="" type="" align="left" alt=""><![CDATA[
       6c af 13 72 3d 14 85 0a d4 b4 2c d6 dd e9 35 bf 
       fd 2f ff 00 a9 ba 70 de 05 c2 03 a5 e1 72 2c a7
-]]></artwork></figure>
-          </t>
-          <t>
+]]></artwork>
+      <t>
               The base64url-encoded representation of this derived key is:
-          </t>
-          <t>
-<figure><artwork><![CDATA[
+      </t>
+      <artwork name="" type="" align="left" alt=""><![CDATA[
       bK8Tcj0UhQrUtCzW3ek1v_0v_wCpunDeBcIDpeFyLKc
-]]></artwork></figure>
-          </t>
-      </section>
-
-      <section anchor="exampleB" title="Example ECDH-1PU+A128KW Key Agreement computation with A256CBC-HS256">
-          <t>
+]]></artwork>
+    </section>
+    <section anchor="exampleB" numbered="true" toc="default">
+      <name>Example ECDH-1PU+A128KW Key Agreement computation with A256CBC-HS256</name>
+      <t>
               This example uses ECDH-1PU in Key Agreement with Key Wrapping mode ("alg" value "ECDH-1PU+A128KW")
               to encrypt a JWE for multiple recipients using the JWE JSON Serialization. The example uses
-              X25519 key pairs, as described in <xref target="RFC8037"/>. Alice is sending an identical message
+              X25519 key pairs, as described in <xref target="RFC8037" format="default"/>. Alice is sending an identical message
               to Bob and Charlie. Because Bob and Charlie are using the same curve (X25519), Alice reuses
               the same ephemeral key-pair for both recipients and includes it in the JWE Protected Header. If this
               was not the case, Alice should generate a separate ephemeral key-pair for each recipient and include
               it in each per-recipient header instead.
-          </t>
-          <t>
+      </t>
+      <t>
               Alice's static key pair, represented as an OKP JWK (including the private component) is:
-          </t>
-          <t>
-<figure><artwork><![CDATA[
+      </t>
+      <artwork name="" type="" align="left" alt=""><![CDATA[
      {"kty": "OKP", 
       "crv": "X25519", 
       "x": "Knbm_BcdQr7WIoz-uqit9M0wbcfEr6y-9UfIZ8QnBD4", 
       "d": "i9KuFhSzEBsiv3PKVL5115OCdsqQai5nj_Flzfkw5jU"}
-]]></artwork></figure>
-    </t>
-    <t>
+]]></artwork>
+      <t>
         Bob's static key-pair (in JWK format) is:
-    </t>
-    <t>
-<figure><artwork><![CDATA[
+      </t>
+      <artwork name="" type="" align="left" alt=""><![CDATA[
      {"kty": "OKP", 
       "crv": "X25519", 
       "x": "BT7aR0ItXfeDAldeeOlXL_wXqp-j5FltT0vRSG16kRw", 
       "d": "1gDirl_r_Y3-qUa3WXHgEXrrEHngWThU3c9zj9A2uBg"}
-]]></artwork></figure>
-    </t>
-    <t>
+]]></artwork>
+      <t>
         Charlie's static key-pair (in JWK format) is:
-    </t>
-    <t>
-<figure><artwork><![CDATA[
+      </t>
+      <artwork name="" type="" align="left" alt=""><![CDATA[
      {"kty": "OKP", 
       "crv": "X25519", 
       "x": "q-LsvU772uV_2sPJhfAIq-3vnKNVefNoIlvyvg1hrnE", 
       "d": "Jcv8gklhMjC0b-lsk5onBbppWAx5ncNtbM63Jr9xBQE"}
-]]></artwork></figure>
-    </t>
-    <t>
+]]></artwork>
+      <t>
         Alice generates an ephemeral key-pair on the same curve. Alice's ephemeral key-pair (in JWK
         format) is:
-    </t>
-    <t>
-<figure><artwork><![CDATA[
+      </t>
+      <artwork name="" type="" align="left" alt=""><![CDATA[
      {"kty": "OKP", 
       "crv": "X25519", 
       "x": "k9of_cpAajy0poW5gaixXGs9nHkwg1AFqUAFa39dyBc", 
       "d": "x8EVZH4Fwk673_mUujnliJoSrLz0zYzzCWp5GUX2fc8"}
-]]></artwork></figure>
-    </t>
-    <section title="JWE Protected Header">
-    <t>
+]]></artwork>
+      <section numbered="true" toc="default">
+        <name>JWE Protected Header</name>
+        <t>
         The JWE Protected Header is as follows. The "apu" (agreement PartyUInfo) Header Parameter value
         is the base64url encoding of the UTF-8 string "Alice" and the "apv" (agreement PartyVInfo)
         Header Parameter value is the base64url encoding of the UTF-8 string "Bob and Charlie". The "epk"
         (ephemeral public key) Header Parameter is used to communicate the producer's (Alice's) ephemeral
         public key to the consumers (Bob and Charlie). Line breaks have been added only for display purposes.
-    </t>
-    <t>
-<figure><artwork><![CDATA[
+        </t>
+        <artwork name="" type="" align="left" alt=""><![CDATA[
     {"alg":"ECDH-1PU+A128KW",
      "enc":"A256CBC-HS512",
      "apu":"QWxpY2U",
@@ -791,40 +856,36 @@
       {"kty":"OKP",
        "crv":"X25519",
        "x":"k9of_cpAajy0poW5gaixXGs9nHkwg1AFqUAFa39dyBc"}}
-]]></artwork></figure>
-    </t>
-</section>
-<section title="JWE Per-Recipient Unprotected Headers">
-    <t>
+]]></artwork>
+      </section>
+      <section numbered="true" toc="default">
+        <name>JWE Per-Recipient Unprotected Headers</name>
+        <t>
         The following JWE Per-Recipient Unprotected Header values are used for Bob and Charlie respectively:
-    </t>
-    <t>
-<figure><artwork><![CDATA[
+        </t>
+        <artwork name="" type="" align="left" alt=""><![CDATA[
     {"kid":"bob-key-2"}
     {"kid":"2021-05-06"}
-]]></artwork></figure>
-    </t>
-</section>
-<section title="JWE Shared Unprotected Header">
-    <t>
+]]></artwork>
+      </section>
+      <section numbered="true" toc="default">
+        <name>JWE Shared Unprotected Header</name>
+        <t>
        This JWE uses the "jku" Header Parameter to reference a JWK Set.
        This is represented in the following JWE Shared Unprotected Header
        value as:
-    </t>
-    <t>
-<figure><artwork><![CDATA[
+        </t>
+        <artwork name="" type="" align="left" alt=""><![CDATA[
     {"jku":"https://alice.example.com/keys.jwks"}
-]]></artwork></figure>
-    </t>
-</section>
-<section title="Additional Authenticated Data">
-    <t>
+]]></artwork>
+      </section>
+      <section numbered="true" toc="default">
+        <name>Additional Authenticated Data</name>
+        <t>
         Let the Additional Authenticated Data encryption parameter be ASCII(BASE64URL(UTF8(JWE Protected Header))).
         This value is:
-    </t>
-    <t>
-
-<figure><artwork><![CDATA[
+        </t>
+        <artwork name="" type="" align="left" alt=""><![CDATA[
     [123, 34, 97, 108, 103, 34, 58, 34, 69, 67, 68, 72, 45, 49, 80, 85, 
     43, 65, 49, 50, 56, 75, 87, 34, 44, 34, 101, 110, 99, 34, 58, 34, 
     65, 50, 53, 54, 67, 66, 67, 45, 72, 83, 53, 49, 50, 34, 44, 34, 97, 
@@ -837,194 +898,175 @@
     112, 111, 87, 53, 103, 97, 105, 120, 88, 71, 115, 57, 110, 72, 107, 
     119, 103, 49, 65, 70, 113, 85, 65, 70, 97, 51, 57, 100, 121, 66, 99, 
     34, 125, 125]
-]]></artwork></figure>
-    </t>
-</section>
-<section title="Content Encryption Key">
-    <t>
+]]></artwork>
+      </section>
+      <section numbered="true" toc="default">
+        <name>Content Encryption Key</name>
+        <t>
         Alice generates the following 512-bit Content Encryption Key (CEK) for A256CBC-HS512 (shown in hexadecimal):
-    </t>
-    <t>
-<figure><artwork><![CDATA[
+        </t>
+        <artwork name="" type="" align="left" alt=""><![CDATA[
     ff fe fd fc fb fa f9 f8 f7 f6 f5 f4 f3 f2 f1 f0 
     ef ee ed ec eb ea e9 e8 e7 e6 e5 e4 e3 e2 e1 e0
     df de dd dc db da d9 d8 d7 d6 d5 d4 d3 d2 d1 d0
     cf ce cd cc cb ca c9 c8 c7 c6 c5 c4 c3 c2 c1 c0
-]]></artwork></figure>
-    </t>
-</section>
-<section title="Initialization Vector">
-    <t>
+]]></artwork>
+      </section>
+      <section numbered="true" toc="default">
+        <name>Initialization Vector</name>
+        <t>
         She then generates the following random JWE Initialization Vector (IV):
-    </t>
-    <t>
-<figure><artwork><![CDATA[
+        </t>
+        <artwork name="" type="" align="left" alt=""><![CDATA[
     00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f
-]]></artwork></figure>
-    </t>
-</section>
-<section title="JWE Plaintext">
-    <t>
+]]></artwork>
+      </section>
+      <section numbered="true" toc="default">
+        <name>JWE Plaintext</name>
+        <t>
         The plaintext of the message Alice sends to Bob and Charlie is the UTF-8 bytes of the
         string "Three is a magic number." (without the quotes). The octets of the plaintext are:
-    </t>
-    <t>
-<figure><artwork><![CDATA[
+        </t>
+        <artwork name="" type="" align="left" alt=""><![CDATA[
     [84, 104, 114, 101, 101, 32, 105, 115, 32, 97, 32, 109, 97, 103, 105, 99, 
     32, 110, 117, 109, 98, 101, 114, 46]
-]]></artwork></figure>
-    </t>
-</section>
-<section title="Content Encryption">
-    <t>
+]]></artwork>
+      </section>
+      <section numbered="true" toc="default">
+        <name>Content Encryption</name>
+        <t>
     Alice performs authenticated encryption on the plaintext with the AES_256_CBC_HMAC_SHA_512 algorithm
     using the CEK as the encryption key, the JWE Initialization Vector, and the Additional Authenticated
-    Data value above. This algorithm is described in <xref target="RFC7518"/>. The resulting ciphertext
+    Data value above. This algorithm is described in <xref target="RFC7518" format="default"/>. The resulting ciphertext
     (in base64url encoding) is:
-    </t>
-    <t>
-<figure><artwork><![CDATA[
+        </t>
+        <artwork name="" type="" align="left" alt=""><![CDATA[
     Az2IWsISEMDJvyc5XRL-3-d-RgNBOGolCsxFFoUXFYw
-]]></artwork></figure>
-    </t>
-    <t>
+]]></artwork>
+        <t>
         The resulting JWE Authentication Tag is (in base64url encoding):
-    </t>
-    <t>
-<figure><artwork><![CDATA[
+        </t>
+        <artwork name="" type="" align="left" alt=""><![CDATA[
     HLb4fTlm8spGmij3RyOs2gJ4DpHM4hhVRwdF_hGb3WQ
-]]></artwork></figure>
-    </t>
-</section>
-<section title="Key Agreement for Bob">
-    <t>
+]]></artwork>
+      </section>
+      <section numbered="true" toc="default">
+        <name>Key Agreement for Bob</name>
+        <t>
         The KDF input parameters for Bob are as follows:
-        <list style="hanging">
-            <t hangText="Ze">
+        </t>
+        <dl newline="false" spacing="compact">
+          <dt>Ze</dt>
+          <dd>
                 This is set to the ECDH key agreement output between Alice's
                 ephemeral private key and Bob's static public key. In this
                 example, Ze is the following octet sequence (in hexadecimal):
-            </t>
-        </list>
-    </t>
-    <t>
-        <figure><artwork>
+            </dd>
+        </dl>
+        <artwork name="" type="" align="left" alt=""><![CDATA[
             32 81 08 96 e0 fe 4d 57 0e d1 ac fc ed f6 71 17
             dc 19 4e d5 da ac 21 d8 ff 7a f3 24 46 94 89 7f
-        </artwork></figure>
-    </t>
-    <t>
-        <list style="hanging">
-            <t hangText="Zs">
+        ]]></artwork>
+        <dl newline="false" spacing="compact">
+          <dt>Zs</dt>
+          <dd>
                 This is set to the ECDH key agreement output between Alice's
                 static private key and Bob's static public key. In this example,
                 Zs is the following octet sequence (in hexadecimal):
-            </t>
-        </list>
-    </t>
-    <t>
-        <figure><artwork>
+            </dd>
+        </dl>
+        <artwork name="" type="" align="left" alt=""><![CDATA[
             21 57 61 2c 90 48 ed fa e7 7c b2 e4 23 71 40 60 
             59 67 c0 5c 7f 77 a4 8e ea f2 cf 29 a5 73 7c 4a
-        </artwork></figure>
-    </t>
-    <t>
-        <list style="hanging">
-            <t hangText="Z">
+        ]]></artwork>
+        <dl newline="false" spacing="compact">
+          <dt>Z</dt>
+          <dd>
                 Z is the concatenation of Ze followed by Zs. In this example, the
                 value of Z is:
-            </t>
-        </list>
-    </t>
-    <t>
-        <figure><artwork>
+            </dd>
+        </dl>
+        <artwork name="" type="" align="left" alt=""><![CDATA[
             32 81 08 96 e0 fe 4d 57 0e d1 ac fc ed f6 71 17
             dc 19 4e d5 da ac 21 d8 ff 7a f3 24 46 94 89 7f
             21 57 61 2c 90 48 ed fa e7 7c b2 e4 23 71 40 60 
             59 67 c0 5c 7f 77 a4 8e ea f2 cf 29 a5 73 7c 4a
-        </artwork></figure>
-    </t>
-    <t>
-        <list style="hanging">
-            <t hangText="keydatalen">
+        ]]></artwork>
+        <dl newline="false" spacing="compact">
+          <dt>keydatalen</dt>
+          <dd>
                 This value is 128 - the number of bits in the desired output key
                 (because "ECDH-1PU+A128KW" uses a 128-bit key-wrapping key).
-            </t>
-            <t hangText="cctag">
+            </dd>
+          <dt>cctag</dt>
+          <dd>
                 This is set to the octets of the JWE Authentication Tag, prefixed by
                 the length of the authentication tag (number of octets) as a big-endian
                 32-bit unsigned integer. For the "A256CBC-HS512" algorithm used in this
                 example, the tag is 32 octets in size (00 00 00 20 in hex). The complete
                 value of the cctag parameter for this example (in hex) is:
-            </t>
-        </list>
-    </t>
-    <t>
-        <figure><artwork>
+            </dd>
+        </dl>
+        <artwork name="" type="" align="left" alt=""><![CDATA[
             00 00 00 20 1c b6 f8 7d 39 66 f2 ca 46 9a 28 f7 
             47 23 ac da 02 78 0e 91 cc e2 18 55 47 07 45 fe
             11 9b dd 64
-        </artwork></figure>
-    </t>
-    <t>
-        <list style="hanging">
-            <t hangText="AlgorithmID">
+        ]]></artwork>
+        <dl newline="false" spacing="compact">
+          <dt>AlgorithmID</dt>
+          <dd>
                 This is set to the octets representing the big-endian value 15 - 00 00 00 0F in
                 hexadecimal notation - the number of octets in the ASCII encoding of "ECDH-1PU+A128KW",
                 followed by the octets representing that string - 45 43 44 48 2d 31 50 55 2b 41 
                 31 32 38 4b 57 (in hex). The complete value is therefore
                 00 00 00 0f 45 43 44 48 2d 31 50 55 2b 41 31 32 38 4b 57
-            </t>
-            <t hangText="PartyUInfo">
+            </dd>
+          <dt>PartyUInfo</dt>
+          <dd>
                 This is set to the octets representing the big-endian value 5 followed by the octets
                 of the UTF-8 encoding of "Alice": 00 00 00 05 41 6c 69 63 65 (in hex).
-            </t>
-            <t hangText="PartyVInfo">
+            </dd>
+          <dt>PartyVInfo</dt>
+          <dd>
                 This is set to the octets representing the big-endian value 15 followed by the octets
                 of the UTF-8 encoding of "Bob and Charlie": 00 00 00 0f 42 6f 62 20 61 6e 64 20 43 68
                 61 72 6c 69 65 (in hex).
-            </t>
-            <t hangText="SuppPubInfo">
+            </dd>
+          <dt>SuppPubInfo</dt>
+          <dd>
                 This is set to the octets representing the 32-bit big-endian encoding of the keydatalen
                 followed by the octets of the cctag. The complete value is as follows (in hex):
-            </t>
-        </list>
-    </t>
-    <t>
-        <figure><artwork>
+            </dd>
+        </dl>
+        <artwork name="" type="" align="left" alt=""><![CDATA[
             00 00 00 80 00 00 00 20 1c b6 f8 7d 39 66 f2 ca
             46 9a 28 f7 47 23 ac da 02 78 0e 91 cc e2 18 55 
             47 07 45 fe 11 9b dd 64
-        </artwork></figure>
-    </t>
-    <t>
-        <list style="hanging">
-            <t hangText="SuppPrivInfo">
+        ]]></artwork>
+        <dl newline="false" spacing="compact">
+          <dt>SuppPrivInfo</dt>
+          <dd>
                 This is set to the empty octet sequence.
-            </t>
-        </list>
-    </t>
-    <t>
+            </dd>
+        </dl>
+        <t>
         Concatenating the parameters AlgorithmID through SuppPrivInfo results in a FixedInfo
-        value in Concatenation Format (as per Section 5.8.2.1.1 of <xref target="NIST.800-56A"/> of
+        value in Concatenation Format (as per Section 5.8.2.1.1 of <xref target="NIST.800-56A" format="default"/> of
         (in hexadecimal notation):
-    </t>
-    <t>
-        <figure><artwork>
+        </t>
+        <artwork name="" type="" align="left" alt=""><![CDATA[
             00 00 00 0f 45 43 44 48 2d 31 50 55 2b 41 31 32 
             38 4b 57 00 00 00 05 41 6c 69 63 65 00 00 00 0f
             42 6f 62 20 61 6e 64 20 43 68 61 72 6c 69 65 00
             00 00 80 00 00 00 20 1c b6 f8 7d 39 66 f2 ca 46
             9a 28 f7 47 23 ac da 02 78 0e 91 cc e2 18 55 47
             07 45 fe 11 9b dd 64
-        </artwork></figure>
-    </t>
-    <t>
+        ]]></artwork>
+        <t>
         Concatenating the round number 1 (00 00 00 01), Z, and the FixedInfo value results in a
         one-pass KDF round 1 hash input of (hexadecimal):
-    </t>
-    <t>
-        <figure><artwork>
+        </t>
+        <artwork name="" type="" align="left" alt=""><![CDATA[
             00 00 00 01 32 81 08 96 e0 fe 4d 57 0e d1 ac fc 
             ed f6 71 17 dc 19 4e d5 da ac 21 d8 ff 7a f3 24 
             46 94 89 7f 21 57 61 2c 90 48 ed fa e7 7c b2 e4
@@ -1035,83 +1077,71 @@
             6c 69 65 00 00 00 80 00 00 00 20 1c b6 f8 7d 39
             66 f2 ca 46 9a 28 f7 47 23 ac da 02 78 0e 91 cc
             e2 18 55 47 07 45 fe 11 9b dd 64
-        </artwork></figure>
-    </t>
-    <t>
+        ]]></artwork>
+        <t>
         The resulting derived key, which is the first 16 octets of the round 1 hash output is:
-    </t>
-    <t>
-        <figure><artwork>
+        </t>
+        <artwork name="" type="" align="left" alt=""><![CDATA[
             df 4c 37 a0 66 83 06 a1 1e 3d 6b 00 74 b5 d8 df
-        </artwork></figure>
-    </t>
-    <t>
+        ]]></artwork>
+        <t>
         The derived key is then used with the "A128KW" key-wrapping algorithm described in
-        <xref target="RFC7518"/> to encrypt the CEK, resulting the following JWE Encrypted Key
+        <xref target="RFC7518" format="default"/> to encrypt the CEK, resulting the following JWE Encrypted Key
         (in base64url encoding with line breaks for display purposes only):
-    </t>
-    <t>
-        <figure><artwork><![CDATA[
+        </t>
+        <artwork name="" type="" align="left" alt=""><![CDATA[
             pOMVA9_PtoRe7xXW1139NzzN1UhiFoio8lGto9cf0t8PyU-sjNXH8-LIRLycq8CHJQ
             bDwvQeU1cSl55cQ0hGezJu2N9IY0QN
-        ]]></artwork></figure>
-    </t>
-</section>
-<section title="Key Agreement for Charlie">
-    <t>
+        ]]></artwork>
+      </section>
+      <section numbered="true" toc="default">
+        <name>Key Agreement for Charlie</name>
+        <t>
         The KDF input parameters for Charlie are as follows:
-        <list style="hanging">
-            <t hangText="Ze">
+        </t>
+        <dl newline="false" spacing="compact">
+          <dt>Ze</dt>
+          <dd>
                 This is set to the ECDH key agreement output between Alice's
                 ephemeral private key and Charlie's static public key. In this
                 example, Ze is the following octet sequence (in hexadecimal):
-            </t>
-        </list>
-    </t>
-    <t>
-        <figure><artwork>
+            </dd>
+        </dl>
+        <artwork name="" type="" align="left" alt=""><![CDATA[
             89 dc fe 4c 37 c1 dc 02 71 f3 46 b5 b3 b1 9c 3b 
             70 5c a2 a7 2f 9a 23 77 85 c3 44 06 fc b7 5f 10
-        </artwork></figure>
-    </t>
-    <t>
-        <list style="hanging">
-            <t hangText="Zs">
+        ]]></artwork>
+        <dl newline="false" spacing="compact">
+          <dt>Zs</dt>
+          <dd>
                 This is set to the ECDH key agreement output between Alice's
                 static private key and Charlie's static public key. In this example,
                 Zs is the following octet sequence (in hexadecimal):
-            </t>
-        </list>
-    </t>
-    <t>
-        <figure><artwork>
+            </dd>
+        </dl>
+        <artwork name="" type="" align="left" alt=""><![CDATA[
             78 fe 63 fc 66 1c f8 d1 8f 92 a8 42 2a 64 18 e4
             ed 5e 20 a9 16 81 85 fd ee dc a1 c3 d8 e6 a6 1c
-        </artwork></figure>
-    </t>
-    <t>
-        <list style="hanging">
-            <t hangText="Z">
+        ]]></artwork>
+        <dl newline="false" spacing="compact">
+          <dt>Z</dt>
+          <dd>
                 Z is the concatenation of Ze followed by Zs. In this example, the
                 value of Z is:
-            </t>
-        </list>
-    </t>
-    <t>
-        <figure><artwork>
+            </dd>
+        </dl>
+        <artwork name="" type="" align="left" alt=""><![CDATA[
             89 dc fe 4c 37 c1 dc 02 71 f3 46 b5 b3 b1 9c 3b 
             70 5c a2 a7 2f 9a 23 77 85 c3 44 06 fc b7 5f 10
             78 fe 63 fc 66 1c f8 d1 8f 92 a8 42 2a 64 18 e4
             ed 5e 20 a9 16 81 85 fd ee dc a1 c3 d8 e6 a6 1c
-        </artwork></figure>
-    </t>
-    <t>
+        ]]></artwork>
+        <t>
         The FixedInfo value is identical to that computed for Bob. 
         Concatenating the round number 1 (00 00 00 01), Z, and the FixedInfo value results in a
         one-pass KDF round 1 hash input of (hexadecimal):
-    </t>
-    <t>
-        <figure><artwork>
+        </t>
+        <artwork name="" type="" align="left" alt=""><![CDATA[
             00 00 00 01 89 dc fe 4c 37 c1 dc 02 71 f3 46 b5
             b3 b1 9c 3b 70 5c a2 a7 2f 9a 23 77 85 c3 44 06
             fc b7 5f 10 78 fe 63 fc 66 1c f8 d1 8f 92 a8 42
@@ -1122,35 +1152,30 @@
             6c 69 65 00 00 00 80 00 00 00 20 1c b6 f8 7d 39
             66 f2 ca 46 9a 28 f7 47 23 ac da 02 78 0e 91 cc
             e2 18 55 47 07 45 fe 11 9b dd 64
-        </artwork></figure>
-    </t>
-    <t>
+        ]]></artwork>
+        <t>
         The resulting derived key, which is the first 16 octets of the round 1 hash output is:
-    </t>
-    <t>
-        <figure><artwork>
+        </t>
+        <artwork name="" type="" align="left" alt=""><![CDATA[
             57 d8 12 6f 1b 7e c4 cc b0 58 4d ac 03 cb 27 cc
-        </artwork></figure>
-    </t>
-    <t>
+        ]]></artwork>
+        <t>
         The derived key is then used with the "A128KW" key-wrapping algorithm described in
-        <xref target="RFC7518"/> to encrypt the CEK, resulting the following JWE Encrypted Key
+        <xref target="RFC7518" format="default"/> to encrypt the CEK, resulting the following JWE Encrypted Key
         (in base64url encoding with line breaks for display purposes only):
-    </t>
-    <t>
-        <figure><artwork><![CDATA[
+        </t>
+        <artwork name="" type="" align="left" alt=""><![CDATA[
             56GVudgRLIMEElQ7DpXsijJVRSWUSDNdbWkdV3g0GUNq6hcT_GkxwnxlPIWrTXCqRp
             VKQC8fe4z3PQ2YH2afvjQ28aiCTWFE
-            ]]></artwork></figure>
-    </t>
-</section>
-<section title="Complete JWE JSON Serialization Representation">
-    <t>
+            ]]></artwork>
+      </section>
+      <section numbered="true" toc="default">
+        <name>Complete JWE JSON Serialization Representation</name>
+        <t>
         The complete JWE JSON Serialization for these values is as follows
         (with line breaks within values for display purposes only):
-    </t>
-    <t>
-<figure><artwork><![CDATA[
+        </t>
+        <artwork name="" type="" align="left" alt=""><![CDATA[
     {
      "protected":
       "eyJhbGciOiJFQ0RILTFQVStBMTI4S1ciLCJlbmMiOiJBMjU2Q0JDLUhTNTEyIiwiYXB1Ijoi
@@ -1177,36 +1202,34 @@
      "tag":
       "HLb4fTlm8spGmij3RyOs2gJ4DpHM4hhVRwdF_hGb3WQ"
     }
-]]></artwork></figure>
-    </t>
-</section>
+]]></artwork>
       </section>
-
-      <section title="Document History">
-          <t>
-              <list style="hanging">
-                  <t hangText="-04">
+    </section>
+    <section numbered="true" toc="default">
+      <name>Document History</name>
+      <dl newline="false" spacing="compact">
+        <dt>-04</dt>
+        <dd>
                       Added requirement to include the JWE Authentication Tag in the KDF input
                       when using Key Agreement with Key Wrapping mode to ensure security against
                       insider threats when sending to multiple recipients. Added worked example
-                      for a multi-recipient JWE in <xref target="exampleB"/>.
-                  </t>
-                  <t hangText="-03">
+                      for a multi-recipient JWE in <xref target="exampleB" format="default"/>.
+                  </dd>
+        <dt>-03</dt>
+        <dd>
                       Corrected typos and clarified wording. Removed unnecessary references.
-                  </t>
-                  <t hangText="-02">
+                  </dd>
+        <dt>-02</dt>
+        <dd>
                       Removed two-way interactive handshake protocol section and example after
                       discussion with Hannes Tschofenig.
-                  </t>
-                  <t hangText="-01">
-                      Added examples in <xref target="exampleA"/> and a two-way handshake example.
+                  </dd>
+        <dt>-01</dt>
+        <dd>
+                      Added examples in <xref target="exampleA" format="default"/> and a two-way handshake example.
                       Added "skid" Header Parameter and registration. Fleshed out Security Considerations.
-                  </t>
-              </list>
-          </t>
-      </section>
-
-    </back>
+                  </dd>
+      </dl>
+    </section>
+  </back>
 </rfc>
-
-
